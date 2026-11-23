@@ -35,10 +35,12 @@ drop policy if exists docs_own on public.docs;
 create policy docs_own on public.docs for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 drop policy if exists push_own on public.push_subs;
 create policy push_own on public.push_subs for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+grant select, insert, update, delete on public.docs, public.push_subs to authenticated;
+revoke all on public.docs, public.push_subs, public.notif_log from anon;
 -- notif_log: só a função de lembretes (chave de serviço) usa; sem política = ninguém de fora acessa.
 
 -- Lembretes: chama a função a cada 15 minutos.
--- Rode depois de publicar a função e guardar o segredo no Vault:
+-- (já aplicado no projeto kvywtrdukwevesgbjghd) Rode depois de publicar a função e guardar o segredo no Vault:
 --   select vault.create_secret('<SEGREDO_DO_CRON>', 'cron_secret');
 -- create extension if not exists pg_cron; create extension if not exists pg_net;
 -- select cron.schedule('lembretes', '*/15 * * * *', $$

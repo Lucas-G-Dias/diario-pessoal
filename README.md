@@ -2,7 +2,7 @@
 
 PWA pessoal para leitura, hábitos e treino, com gamificação (XP, nível, sequência, medalhas) e lembretes por push.
 HTML + JS puro, sem build, mesma arquitetura do Diário do Bebê. Publicado pelo GitHub Pages.
-Dados no Supabase (login por e-mail e senha, tabela `docs` por usuário). Sem `SB_URL` em `js/00-config.js`, roda em modo local.
+Dados no Supabase (projeto `kvywtrdukwevesgbjghd`, São Paulo; login por e-mail e senha, tabela `docs` por usuário). Sem `SB_URL` em `js/00-config.js`, roda em modo local.
 Toda a interface em português do Brasil.
 
 | Arquivo | Responsabilidade |
