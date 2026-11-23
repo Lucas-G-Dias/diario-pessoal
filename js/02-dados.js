@@ -4,6 +4,7 @@
    Sempre grave por store.set/del: funciona offline e sincroniza quando voltar a internet. */
 const sb = SB_URL && window.supabase ? supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true } }) : null;
 const LOCAL = !sb;
+const STATS = new Map(); // cache das estatísticas por período; zera a cada gravação
 
 const store = {
   docs: {}, // path -> { data, t, deleted }
@@ -21,9 +22,9 @@ const store = {
     return out;
   },
   write(path, data, deleted = false) {
-    this.docs[path] = { data, t: Date.now(), deleted };
+    this.docs[path] = { data, t: Date.now(), deleted }; STATS.clear();
     if (!LOCAL && !this.outbox.includes(path)) this.outbox.push(path);
-    this.save(); this.flush(); render();
+    this.save(); this.flush(); render(); setTimeout(celebrate, 400);
   },
   set(path, data) { this.write(path, data); },
   merge(path, patch) { this.write(path, { ...(this.doc(path) || {}), ...patch }); },
@@ -57,7 +58,7 @@ const store = {
       if (!this.outbox.includes(r.path) && (!mine || mine.t <= t)) this.docs[r.path] = { data: r.data, t, deleted: r.deleted };
       if (!max || r.updated_at > max) max = r.updated_at;
     }
-    this.since = max; this.save(); render();
+    STATS.clear(); this.since = max; this.save(); S.prevGame = null; render(); celebrate();
   },
 };
 
@@ -69,7 +70,11 @@ const habits = () => store.col('habits').sort((a, b) => (a.time || '99').localeC
 const workouts = () => store.col('workouts').sort((a, b) => b.date.localeCompare(a.date));
 const readingOn = (iso) => store.doc('reading/' + iso)?.pages || 0;
 const habitsDone = (iso) => store.doc('habitlog/' + iso)?.ids || {};
-const habitDueOn = (h, iso) => !h.days || !h.days.length || h.days.includes(dow(iso));
+/* hábito pausado num dia: está dentro de alguma pausa { from, to } (to vazio = pausa em andamento) */
+const pausedOn = (h, iso) => (h.pauses || []).some((p) => iso >= p.from && (!p.to || iso < p.to));
+const habitDueOn = (h, iso) => (!h.days || !h.days.length || h.days.includes(dow(iso))) && (!h.created || iso >= h.created) && !pausedOn(h, iso);
+const activeHabits = () => habits().filter((h) => !h.paused);
+const goals = () => store.col('goals').sort((a, b) => (a.created || '').localeCompare(b.created || ''));
 
 addEventListener('online', () => { S.online = true; store.flush(); store.pull(); });
 addEventListener('offline', () => { S.online = false; render(); });

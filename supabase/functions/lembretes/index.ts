@@ -25,7 +25,7 @@ function plan(docs: Doc[], tz: string): Note[] {
   const cfg = get("config/main") || {}, r = { leitura: "21:00", treino: "18:00", habitos: true, resumo: true, ...(cfg.remind || {}) };
   const goalPages = cfg.goalPages || 20, read = get(`reading/${L.iso}`)?.pages || 0, done = get(`habitlog/${L.iso}`)?.ids || {};
   const habits = docs.filter((d) => d.path.startsWith("habits/")).map((d) => ({ id: d.path.slice(7), ...d.data }))
-    .filter((h) => !h.days?.length || h.days.includes(L.dow));
+    .filter((h) => !h.paused && (!h.days?.length || h.days.includes(L.dow)));
   const trained = docs.some((d) => d.path.startsWith("workouts/") && d.data.date === L.iso);
   const out: Note[] = [];
   if (due(r.leitura, L.min) && read < goalPages)

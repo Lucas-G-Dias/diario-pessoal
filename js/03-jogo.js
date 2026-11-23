@@ -1,5 +1,5 @@
 /* ============ gamificação: XP, nível, sequência, missão do dia, medalhas ============ */
-const XP = { pagina: 1, habito: 10, treino: 40, livro: 100, diaCompleto: 25 };
+const XP = { pagina: 1, habito: 10, treino: 40, livro: 100, diaCompleto: 25, meta: 150 };
 const TITULOS = ['Aprendiz', 'Iniciado', 'Constante', 'Disciplinado', 'Focado', 'Inabalável', 'Mestre', 'Sábio', 'Lenda'];
 
 /* dias em que houve qualquer registro */
@@ -47,8 +47,9 @@ function totals() {
   }
   const finished = books().filter((b) => b.status === 'lido');
   const tr = workouts().length;
-  const xp = pages * XP.pagina + checks * XP.habito + tr * XP.treino + finished.length * XP.livro + full * XP.diaCompleto;
-  return { pages, checks, workouts: tr, finished: finished.length, full, xp };
+  const metas = goalsHit();
+  const xp = pages * XP.pagina + checks * XP.habito + tr * XP.treino + finished.length * XP.livro + full * XP.diaCompleto + metas * XP.meta;
+  return { pages, checks, workouts: tr, finished: finished.length, full, metas, xp };
 }
 
 /* nível n exige 150·n·(n−1)/2 XP acumulado: 0, 150, 450, 900, 1500… */
@@ -77,7 +78,17 @@ const MEDALHAS = [
   { id: 'treino50', nome: 'Cinquenta treinos', desc: 'Registrar 50 treinos', ok: (t) => t.workouts >= 50 },
   { id: 'habito100', nome: 'Cem marcações', desc: 'Marcar 100 hábitos', ok: (t) => t.checks >= 100 },
   { id: 'completo7', nome: 'Semana perfeita', desc: '7 dias com a missão cumprida', ok: (t) => t.full >= 7 },
+  { id: 'meta1', nome: 'Primeira meta', desc: 'Bater uma meta', ok: (t) => t.metas >= 1 },
+  { id: 'meta10', nome: 'Imparável', desc: 'Bater 10 metas', ok: (t) => t.metas >= 10 },
 ];
+
+/* comemora depois de cada registro: subiu de nível ou bateu meta */
+function celebrate() {
+  const g = game(), prev = S.prevGame; S.prevGame = { n: g.level.n, metas: g.metas };
+  if (!prev) return;
+  if (g.level.n > prev.n) toast(`Nível ${g.level.n}! Agora você é ${g.level.title}`);
+  else if (g.metas > prev.metas) toast(`Meta batida! +${XP.meta} XP`);
+}
 
 function game() {
   const set = activeDays(), t = totals(), s = { cur: streakOf(set), best: bestStreak(set) };

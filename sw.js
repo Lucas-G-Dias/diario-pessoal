@@ -1,8 +1,8 @@
 // Diário Pessoal: funciona offline e recebe os lembretes
-const CACHE = 'dp-v2';
+const CACHE = 'dp-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/favicon.svg', './vendor/supabase.js',
   './css/base.css', './css/telas.css', './js/00-config.js', './js/01-base.js', './js/02-dados.js', './js/03-jogo.js',
-  './js/04-inicio.js', './js/05-leitura.js', './js/06-habitos.js', './js/07-treino.js', './js/08-ajustes.js', './js/09-boot.js'];
+  './js/04-inicio.js', './js/05-leitura.js', './js/06-habitos.js', './js/07-treino.js', './js/08-ajustes.js', './js/09-metas.js', './js/10-boot.js'];
 
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', (e) => {

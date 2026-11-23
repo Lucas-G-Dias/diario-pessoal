@@ -35,11 +35,12 @@ function cardMissao() {
     <ul class="mission">${lis}</ul>${hab}</section>`;
 }
 
-function cardTreinoSemana() {
-  const days = lastDays(7), ws = workouts(), c = cfg();
-  const n = ws.filter((w) => days.includes(w.date)).length;
-  return `<section class="card"><div class="row-between"><div><span class="eyebrow">Treino · 7 dias</span><em class="serif lg">${n} de ${c.goalWorkouts} treinos</em></div><button class="link" data-page="treino">Ver treinos</button></div>
-    <div class="week">${days.map((d) => `<div class="wd ${ws.some((w) => w.date === d) ? 'on' : ''} ${d === today() ? 'today' : ''}"><span>${DIAS_C[dow(d)]}</span><i></i></div>`).join('')}</div></section>`;
+function cardMetas() {
+  const gs = goals();
+  if (!gs.length) return `<button class="card empty-card" data-page="metas"><span class="eyebrow">Metas</span><strong>Defina sua primeira meta</strong><span class="muted">Cada meta batida vale ${XP.meta} XP</span></button>`;
+  const rows = gs.slice(0, 4).map((g) => { const st = goalStatus(g), k = KINDS[g.kind] || KINDS.manual;
+    return `<div class="mini-goal"><div class="row-between"><span>${esc(goalTitle(g))} <span class="tiny muted" style="display:inline">${PERIODOS[g.period]}</span></span><b class="${st.hit ? 'green-t' : ''}">${fmt(st.v)}${k.pct ? '%' : ''}/${fmt(g.target)}${k.pct ? '%' : ''}</b></div>${progressBar(st.pct, st.hit ? 'green' : 'gold')}</div>`; }).join('');
+  return `<section class="card"><div class="row-between"><span class="eyebrow">Metas</span><button class="link" data-page="metas">Ver todas</button></div>${rows}</section>`;
 }
 
 function cardEstante() {
@@ -69,5 +70,5 @@ function previsao(lidos, meta) {
 VIEWS.inicio = () => {
   const g = game();
   return `<header class="top"><h1 class="serif">Início</h1><em class="muted">${longDate(today())}</em></header>
-    ${cardLendo()}${cardSelo(g)}${cardMissao()}${cardTreinoSemana()}${cardEstante()}`;
+    ${cardSelo(g)}${cardMissao()}${cardMetas()}${cardLendo()}${cardEstante()}`;
 };

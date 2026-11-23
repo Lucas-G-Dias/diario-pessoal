@@ -11,6 +11,7 @@ VIEWS.treino = () => {
   return `<header class="top"><h1 class="serif">Treino</h1><button class="btn-sm" data-act="novoTreino">${ic('plus', 16)} Treino</button></header>
     <section class="card"><div class="stats three"><div><b class="serif">${nSem}/${c.goalWorkouts}</b><span>nesta semana</span></div><div><b class="serif">${nMes}</b><span>no mês</span></div><div><b class="serif">${fmt(minMes)}</b><span>minutos no mês</span></div></div>
       <div class="week">${sem.map((d) => `<div class="wd ${ws.some((w) => w.date === d) ? 'on' : ''} ${d === today() ? 'today' : ''}"><span>${DIAS_C[dow(d)]}</span><i></i></div>`).join('')}</div></section>
+    <section class="card"><span class="eyebrow">Treinos por mês</span>${monthBars('Treinos', (x) => x.treinos)}</section>
     ${ws.length ? `<h3 class="eyebrow sec">Histórico</h3><section class="card list">${ws.slice(0, 40).map(item).join('')}</section>`
     : '<div class="card empty"><em class="serif lg">Nenhum treino registrado.</em><p class="muted">Registre o treino logo depois de terminar: tipo, tempo e o que fez.</p></div>'}`;
 };

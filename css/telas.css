@@ -138,3 +138,38 @@
   .selo { width: 92px; height: 92px; } .selo b { font-size: 2.1rem; }
   .top h1 { font-size: 2rem; } .shelf { height: 100px; }
 }
+
+/* metas e relatório */
+.bar.green i { background: var(--green); }
+.green-t { color: var(--green); }
+.tag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 12px; background: var(--line); color: var(--ink); font-size: .78rem; }
+.tag.ok { background: var(--green); color: #fff; }
+.tag.warn { background: color-mix(in srgb, var(--red) 15%, transparent); color: var(--red); }
+.goal.hit { border-color: var(--green); }
+.goal-num { display: flex; align-items: baseline; gap: 6px; margin-top: 8px; }
+.goal-num b { font-size: 2.2rem; line-height: 1; }
+.goal-num span { color: var(--muted); font-size: 1.1rem; }
+.mini-goal { margin-top: 10px; font-size: .95rem; }
+.mini-goal .bar { margin-top: 4px; }
+.mnav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.mnav .icon-btn { font-size: 1.6rem; color: var(--red); }
+.mnav .icon-btn:disabled { opacity: .25; }
+.stats.three { row-gap: 14px; }
+.stats small { display: block; font-size: .75rem; font-weight: 600; }
+.up { color: var(--green); } .down { color: var(--red); }
+.hrate { display: grid; grid-template-columns: 1fr auto auto; gap: 0 10px; align-items: baseline; margin-top: 8px; }
+.hrate .bar { grid-column: 1 / -1; margin: 2px 0 0; }
+.hrate b { font-family: var(--serif); font-size: 1.15rem; }
+.mbars { display: flex; align-items: flex-end; gap: 8px; height: 110px; margin: 10px 0 16px; }
+.mcol { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; }
+.mcol b { font-size: .8rem; font-family: var(--serif); }
+.mcol i { width: 100%; min-height: 2px; background: var(--green); border-radius: 3px 3px 0 0; opacity: .55; }
+.mcol.today i { opacity: 1; background: var(--red); }
+.mcol span { font-size: .72rem; color: var(--muted); }
+.hnums { display: flex; flex-direction: column; align-items: flex-end; flex: none; }
+.only-habito, .only-manual { display: none; }
+form:has(select[name=kind] option[value=habito]:checked) .only-habito,
+form:has(select[name=kind] option[value=manual]:checked) .only-manual { display: block; }
+.nav-i { font-size: .78rem; }
+.nav-ic { width: 38px; }
+@media (max-width: 400px) { .nav-plus { width: 50px; height: 50px; margin: -20px 2px 0; } .nav-i { font-size: .7rem; } }

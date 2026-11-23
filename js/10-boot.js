@@ -1,5 +1,5 @@
 /* ============ casca: login, navegação, modal, eventos, início ============ */
-const NAV = [['inicio', 'Início', 'home'], ['leitura', 'Leitura', 'book'], null, ['habitos', 'Hábitos', 'habit'], ['treino', 'Treino', 'gym']];
+const NAV = [['inicio', 'Início', 'home'], ['habitos', 'Hábitos', 'habit'], ['leitura', 'Leitura', 'book'], null, ['treino', 'Treino', 'gym'], ['metas', 'Metas', 'target']];
 
 function render() {
   const app = $('#app');
@@ -57,7 +57,7 @@ Object.assign(ACT, {
       ${lendo ? `<button class="qbtn" data-act="registrarLeitura" data-id="${lendo.id}">${ic('book', 26)}<b>Páginas lidas</b><span class="tiny muted">${esc(lendo.title)}</span></button>` : `<button class="qbtn" data-act="novoLivro">${ic('book', 26)}<b>Novo livro</b></button>`}
       <button class="qbtn" data-act="novoTreino">${ic('gym', 26)}<b>Treino</b><span class="tiny muted">+${XP.treino} XP</span></button>
       <button class="qbtn" data-page="habitos">${ic('habit', 26)}<b>Hábitos</b><span class="tiny muted">marcar os de hoje</span></button>
-      <button class="qbtn" data-act="novoHabito">${ic('plus', 26)}<b>Novo hábito</b></button></div>`);
+      <button class="qbtn" data-act="novaMeta">${ic('target', 26)}<b>Nova meta</b><span class="tiny muted">+${XP.meta} XP ao bater</span></button></div>`);
   },
 });
 
@@ -80,10 +80,10 @@ $('#modal').addEventListener('click', (e) => { if (e.target.id === 'modal') clos
 async function boot() {
   const h = location.hash.slice(1); if (VIEWS[h]) S.page = h;
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-  if (LOCAL) { S.auth = 'in'; store.load(); render(); return; }
+  if (LOCAL) { S.auth = 'in'; store.load(); celebrate(); render(); return; }
   sb.auth.onAuthStateChange((ev, session) => {
     const was = S.user?.id; S.user = session?.user || null; S.auth = S.user ? 'in' : 'out';
-    if (S.user && S.user.id !== was) { store.load(); store.flush(); store.pull(); }
+    if (S.user && S.user.id !== was) { store.load(); celebrate(); store.flush(); store.pull(); }
     render();
   });
   const { data } = await sb.auth.getSession();
