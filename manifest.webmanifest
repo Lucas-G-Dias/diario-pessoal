@@ -1,0 +1,12 @@
+{
+  "name": "Diário Pessoal",
+  "short_name": "Diário",
+  "description": "Leitura, hábitos e treino. Um dia de cada vez.",
+  "start_url": "./#inicio",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#efe8da",
+  "theme_color": "#efe8da",
+  "lang": "pt-BR",
+  "icons": [{ "src": "icons/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
