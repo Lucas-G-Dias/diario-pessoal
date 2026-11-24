@@ -1,8 +1,8 @@
 // Diário Pessoal: funciona offline e recebe os lembretes
-const CACHE = 'dp-v3';
+const CACHE = 'dp-v4';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/favicon.svg', './vendor/supabase.js',
-  './css/base.css', './css/telas.css', './js/00-config.js', './js/01-base.js', './js/02-dados.js', './js/03-jogo.js',
-  './js/04-inicio.js', './js/05-leitura.js', './js/06-habitos.js', './js/07-treino.js', './js/08-ajustes.js', './js/09-metas.js', './js/10-boot.js'];
+  './css/base.css', './css/telas.css', './css/areas.css', './css/motion.css',
+  './js/00-config.js', './js/01-base.js', './js/02-dados.js', './js/03-jogo.js', './js/04-efeitos.js', './js/05-inicio.js', './js/06-habitos.js', './js/07-treino.js', './js/08-sessao.js', './js/09-leitura.js', './js/10-biblia.js', './js/11-devocional.js', './js/12-escrita.js', './js/13-metas.js', './js/14-conquistas.js', './js/15-menu.js', './js/16-boot.js'];
 
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', (e) => {

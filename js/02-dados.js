@@ -1,10 +1,13 @@
 /* ============ dados: cache local + sincronização com o Supabase ============
    Tudo é um documento { path, data }. Caminhos usados:
-   config/main · books/<id> · reading/<data> · habits/<id> · habitlog/<data> · workouts/<id>
+   config/main · config/seen · books/<id> · quotes/<id> · reading/<data> · habits/<id> · habitlog/<data>
+   workouts/<id> · routines/<id> · session/treino · session/leitura · goals/<id>
+   devos/<id> · bible/main · prayers/<id> · journal/<id>
    Sempre grave por store.set/del: funciona offline e sincroniza quando voltar a internet. */
 const sb = SB_URL && window.supabase ? supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true } }) : null;
 const LOCAL = !sb;
 const STATS = new Map(); // cache das estatísticas por período; zera a cada gravação
+let GAME = null; // cache do game(); zera a cada gravação
 
 const store = {
   docs: {}, // path -> { data, t, deleted }
@@ -21,12 +24,14 @@ const store = {
     for (const [p, d] of Object.entries(this.docs)) if (!d.deleted && p.startsWith(pre) && !p.slice(pre.length).includes('/')) out.push({ id: p.slice(pre.length), ...d.data });
     return out;
   },
-  write(path, data, deleted = false) {
-    this.docs[path] = { data, t: Date.now(), deleted }; STATS.clear();
+  /* silent: grava sem redesenhar a tela (campos digitados no meio do treino) */
+  write(path, data, deleted = false, silent = false) {
+    this.docs[path] = { data, t: Date.now(), deleted }; STATS.clear(); GAME = null;
     if (!LOCAL && !this.outbox.includes(path)) this.outbox.push(path);
-    this.save(); this.flush(); render(); setTimeout(celebrate, 400);
+    this.save(); clearTimeout(this.ft); this.ft = setTimeout(() => this.flush(), silent ? 2000 : 300);
+    if (!silent) { render(); setTimeout(celebrate, 450); }
   },
-  set(path, data) { this.write(path, data); },
+  set(path, data, silent) { this.write(path, data, false, silent); },
   merge(path, patch) { this.write(path, { ...(this.doc(path) || {}), ...patch }); },
   del(path) { this.write(path, {}, true); },
 
@@ -58,23 +63,36 @@ const store = {
       if (!this.outbox.includes(r.path) && (!mine || mine.t <= t)) this.docs[r.path] = { data: r.data, t, deleted: r.deleted };
       if (!max || r.updated_at > max) max = r.updated_at;
     }
-    STATS.clear(); this.since = max; this.save(); S.prevGame = null; render(); celebrate();
+    STATS.clear(); GAME = null; this.since = max || this.since || '1970-01-01T00:00:00Z'; this.save(); S.prevGame = null; render(); celebrate();
   },
 };
 
 /* ---- atalhos de leitura usados pelas telas ---- */
-const DEF_CFG = { name: '', goalBooks: 20, goalPages: 20, goalWorkouts: 4, remind: { leitura: '21:00', habitos: true, treino: '18:00', resumo: true } };
-const cfg = () => { const c = store.doc('config/main') || {}; return { ...DEF_CFG, ...c, remind: { ...DEF_CFG.remind, ...(c.remind || {}) } }; };
+const DEF_CFG = { name: '', goalBooks: 20, goalPages: 20, goalWorkouts: 4, rest: 90,
+  missao: { habitos: true, leitura: true, devocional: true, escrita: false },
+  remind: { leitura: '21:00', habitos: true, treino: '18:00', devocional: '07:00', escrita: '', resumo: true } };
+const cfg = () => { const c = store.doc('config/main') || {}; return { ...DEF_CFG, ...c, missao: { ...DEF_CFG.missao, ...(c.missao || {}) }, remind: { ...DEF_CFG.remind, ...(c.remind || {}) } }; };
 const books = () => store.col('books').sort((a, b) => (b.updated || 0) - (a.updated || 0));
 const habits = () => store.col('habits').sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
-const workouts = () => store.col('workouts').sort((a, b) => b.date.localeCompare(a.date));
+const workouts = () => store.col('workouts').sort((a, b) => (b.date + (b.end || '')).localeCompare(a.date + (a.end || '')));
+const routines = () => store.col('routines').sort((a, b) => a.name.localeCompare(b.name));
+const quotes = () => store.col('quotes').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+const devos = () => store.col('devos').sort((a, b) => b.date.localeCompare(a.date));
+const prayers = () => store.col('prayers').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+const journal = () => store.col('journal').sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
+const bibleRead = () => store.doc('bible/main')?.read || {}; // { 'Jo:3': '2026-11-24' }
 const readingOn = (iso) => store.doc('reading/' + iso)?.pages || 0;
 const habitsDone = (iso) => store.doc('habitlog/' + iso)?.ids || {};
-/* hábito pausado num dia: está dentro de alguma pausa { from, to } (to vazio = pausa em andamento) */
+/* hábito com contagem (ex.: 8 copos): valor guardado é número; simples: true */
+const hVal = (h, log) => { const v = log[h.id]; return v === true ? 1 : Number(v) || 0; };
+const hDone = (h, log) => hVal(h, log) >= (h.target || 1);
+/* hábito pausado num dia: dentro de uma pausa { from, to } (to vazio = pausa em andamento) */
 const pausedOn = (h, iso) => (h.pauses || []).some((p) => iso >= p.from && (!p.to || iso < p.to));
 const habitDueOn = (h, iso) => (!h.days || !h.days.length || h.days.includes(dow(iso))) && (!h.created || iso >= h.created) && !pausedOn(h, iso);
 const activeHabits = () => habits().filter((h) => !h.paused);
 const goals = () => store.col('goals').sort((a, b) => (a.created || '').localeCompare(b.created || ''));
+const devoOn = (iso) => devos().some((d) => d.date === iso);
+const journalOn = (iso) => journal().some((j) => j.date === iso);
 
 addEventListener('online', () => { S.online = true; store.flush(); store.pull(); });
 addEventListener('offline', () => { S.online = false; render(); });

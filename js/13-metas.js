@@ -1,7 +1,6 @@
 /* ============ Metas e relatório mês a mês ============
    Uma meta: goals/<id> { kind, target, period: semana|mes|ano, habitId?, title?, progress?: { <periodo>: n }, created }
    Ela se repete sozinha a cada período; cada período batido vale XP.meta. */
-const MESES_L = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 const monthLabel = (k) => { const m = MESES_L[Number(k.slice(5, 7)) - 1]; return `${m[0].toUpperCase() + m.slice(1)} de ${k.slice(0, 4)}`; };
 const shiftMonth = (k, n) => { const d = new Date(Number(k.slice(0, 4)), Number(k.slice(5, 7)) - 1 + n, 15); return isoOf(d).slice(0, 7); };
 const daysBetween = (a, b) => { const out = []; for (let d = a; d <= b; d = addDays(d, 1)) out.push(d); return out; };
@@ -19,7 +18,7 @@ function habitRate(hs, days) {
   let due = 0, done = 0;
   for (const d of days) {
     const log = habitsDone(d);
-    for (const h of hs) { if (!habitDueOn(h, d) || (d === today() && !log[h.id])) continue; due++; if (log[h.id]) done++; }
+    for (const h of hs) { const ok = hDone(h, log); if (!habitDueOn(h, d) || (d === today() && !ok)) continue; due++; if (ok) done++; }
   }
   return due ? { done, due, pct: done / due } : null;
 }
@@ -28,8 +27,11 @@ function statsOf(P) {
   const ck = P.start + P.end; if (STATS.has(ck)) return STATS.get(ck);
   const days = pastDays(P), inP = (d) => d && d >= P.start && d <= P.end, ws = workouts().filter((w) => inP(w.date));
   let pages = 0, full = 0; for (const d of days) { pages += readingOn(d); if (store.doc('habitlog/' + d)?.full) full++; }
-  const s = { treinos: ws.length, min: ws.reduce((a, w) => a + (Number(w.min) || 0), 0), pages, full, days: days.length,
-    livros: books().filter((b) => b.status === 'lido' && inP(b.finished)).length, hab: habitRate(habits(), days) };
+  const js = journal().filter((j) => inP(j.date));
+  const s = { treinos: ws.length, min: ws.reduce((a, w) => a + (Number(w.min) || 0), 0), volume: ws.reduce((a, w) => a + (w.volume || 0), 0), pages, full, days: days.length,
+    livros: books().filter((b) => b.status === 'lido' && inP(b.finished)).length, hab: habitRate(habits(), days),
+    devos: devos().filter((d) => inP(d.date)).length, caps: Object.values(bibleRead()).filter(inP).length,
+    entradas: js.length, palavras: js.reduce((a, j) => a + (j.words || 0), 0) };
   STATS.set(ck, s); return s;
 }
 
@@ -40,6 +42,11 @@ const KINDS = {
   habitos: { label: '% de todos os hábitos', pct: true, val: (s) => (s.hab ? Math.round(s.hab.pct * 100) : 0) },
   habito: { label: '% de um hábito', pct: true, val: (s, g, P) => { const h = store.doc('habits/' + g.habitId), r = h && habitRate([{ id: g.habitId, ...h }], pastDays(P)); return r ? Math.round(r.pct * 100) : 0; } },
   dias: { label: 'Dias com a missão cumprida', unit: 'dias perfeitos', val: (s) => s.full },
+  volume: { label: 'Volume de treino (kg)', unit: 'kg levantados', val: (s) => s.volume },
+  devocionais: { label: 'Devocionais', unit: 'devocionais', val: (s) => s.devos },
+  capitulos: { label: 'Capítulos da Bíblia', unit: 'capítulos', val: (s) => s.caps },
+  diario: { label: 'Entradas no diário', unit: 'entradas no diário', val: (s) => s.entradas },
+  palavras: { label: 'Palavras escritas', unit: 'palavras', val: (s) => s.palavras },
   manual: { label: 'Outra (eu conto)', unit: '', val: (s, g, P) => (g.progress || {})[P.key] || 0 },
 };
 const PERIODOS = { semana: 'por semana', mes: 'por mês', ano: 'no ano' };
@@ -83,7 +90,7 @@ function goalCard(g) {
     ${progressBar(st.pct, st.hit ? 'green' : 'gold')}<div class="row-between tiny muted">${chip}<span>${falta}</span></div></section>`;
 }
 
-const SUG_METAS = [['treinos', 16, 'mes'], ['treinos', 4, 'semana'], ['habitos', 80, 'mes'], ['paginas', 600, 'mes'], ['livros', 2, 'mes']];
+const SUG_METAS = [['treinos', 16, 'mes'], ['habitos', 80, 'mes'], ['paginas', 600, 'mes'], ['livros', 2, 'mes'], ['devocionais', 20, 'mes'], ['diario', 15, 'mes'], ['capitulos', 260, 'ano']];
 
 /* relatório de um mês, comparado com o anterior */
 function monthReport(k) {
@@ -96,7 +103,8 @@ function monthReport(k) {
   return `<div class="mnav"><button class="icon-btn" data-act="mes" data-id="-1" aria-label="Mês anterior">‹</button><strong class="serif lg">${monthLabel(k)}</strong>
       <button class="icon-btn" data-act="mes" data-id="1" aria-label="Próximo mês" ${k >= today().slice(0, 7) ? 'disabled' : ''}>›</button></div>
     <div class="stats three">${cell(s.treinos, 'treinos', a.treinos)}${cell(pctH(s), 'dos hábitos', pctH(a), '%')}${cell(s.pages, 'páginas', a.pages)}
-      ${cell(s.livros, 'livros', a.livros)}${cell(s.full, 'dias perfeitos', a.full)}${cell(metas.length ? hit : null, `de ${metas.length} metas`, null)}</div>
+      ${cell(s.livros, 'livros', a.livros)}${cell(s.devos, 'devocionais', a.devos)}${cell(s.caps, 'capítulos', a.caps)}
+      ${cell(s.entradas, 'entradas', a.entradas)}${cell(s.full, 'dias perfeitos', a.full)}${cell(metas.length ? hit : null, `de ${metas.length} metas`, null)}</div>
     ${hs.length ? `<h4 class="eyebrow">Cada hábito no mês</h4>${hs.map(({ h, r }) => `<div class="hrate"><span>${esc(h.name)}</span><b>${Math.round(r.pct * 100)}%</b><span class="tiny muted">${r.done}/${r.due}</span>${progressBar(r.pct, r.pct >= 0.8 ? 'green' : '')}</div>`).join('')}` : ''}`;
 }
 
@@ -104,7 +112,7 @@ function monthReport(k) {
 function monthBars(label, fn, suf = '') {
   const ks = Array.from({ length: 6 }, (_, i) => shiftMonth(today().slice(0, 7), i - 5)), vals = ks.map((k) => fn(statsOf(periodOf('mes', k + '-01'))) ?? 0);
   const max = Math.max(1, ...vals);
-  return `<div class="mbars" aria-label="${esc(label)} nos últimos 6 meses">${ks.map((k, i) => `<div class="mcol ${i === 5 ? 'today' : ''}"><b>${fmt(vals[i])}${suf}</b><i style="height:${(vals[i] / max) * 100}%"></i><span>${MESES[Number(k.slice(5)) - 1]}</span></div>`).join('')}</div>`;
+  return `<div class="mbars" aria-label="${esc(label)} nos últimos 6 meses">${ks.map((k, i) => `<div class="mcol ${i === 5 ? 'today' : ''}" style="--i:${i}"><b>${fmt(vals[i])}${suf}</b><i style="height:${(vals[i] / max) * 100}%"></i><span>${MESES[Number(k.slice(5)) - 1]}</span></div>`).join('')}</div>`;
 }
 
 VIEWS.metas = () => {
@@ -114,7 +122,8 @@ VIEWS.metas = () => {
       <div class="hab-chips">${SUG_METAS.map(([kd, t, p], i) => `<button class="chip" data-act="sugestaoMeta" data-id="${i}">${ic('plus', 14)}${esc(goalTitle({ kind: kd, target: t }))} ${PERIODOS[p]}</button>`).join('')}</div></div>`}
     <h3 class="eyebrow sec">Mês a mês</h3><section class="card">${monthReport(k)}</section>
     <h3 class="eyebrow sec">Últimos 6 meses</h3><section class="card"><span class="eyebrow">Treinos</span>${monthBars('Treinos', (s) => s.treinos)}
-      <span class="eyebrow">Hábitos cumpridos</span>${monthBars('Hábitos', (s) => (s.hab ? Math.round(s.hab.pct * 100) : 0), '%')}</section>`;
+      <span class="eyebrow">Hábitos cumpridos</span>${monthBars('Hábitos', (s) => (s.hab ? Math.round(s.hab.pct * 100) : 0), '%')}
+      <span class="eyebrow">Páginas lidas</span>${monthBars('Páginas', (s) => s.pages)}</section>`;
 };
 
 function formMeta(g = {}) {

@@ -1,0 +1,68 @@
+/* ============ motion: entradas, toques, conquistas ============
+   Tudo some com "reduzir movimento" ligado no aparelho. */
+@media (prefers-reduced-motion: no-preference) {
+  /* troca de página: cartões sobem em cascata */
+  .page.enter > * { animation: subir .5s cubic-bezier(.2, .8, .2, 1) both; }
+  .page.enter > :nth-child(2) { animation-delay: .04s; } .page.enter > :nth-child(3) { animation-delay: .08s; }
+  .page.enter > :nth-child(4) { animation-delay: .12s; } .page.enter > :nth-child(5) { animation-delay: .16s; }
+  .page.enter > :nth-child(6) { animation-delay: .2s; } .page.enter > :nth-child(n+7) { animation-delay: .24s; }
+  .login.enter > * { animation: subir .6s cubic-bezier(.2, .8, .2, 1) both; }
+  .enter .medal, .enter .tile, .enter .xp-row, .enter .spine:not(.slot), .enter .mcol i, .enter .bcol i { animation: subir .5s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(.12s + var(--i, 0) * .035s); }
+  .enter .mcol i, .enter .bcol i { animation-name: crescer; transform-origin: bottom; }
+  @keyframes subir { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes crescer { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+  /* toque: botões afundam um pouco */
+  button, .chip, .qbtn, .tile, .medal { transition: transform .15s ease, background .2s, color .2s, border-color .2s, box-shadow .2s; }
+  button:active:not(:disabled), .chip:active, .tile:active { transform: scale(.96); }
+  .card[data-act]:active, .card[data-page]:active, .book-row:active { transform: scale(.985); }
+
+  /* marcar: o ✓ pula */
+  .hcheck.on, .chip.on, .set.done .sdone, .cap.on, .mring.ok .ring-in { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); }
+  @keyframes pop { 0% { transform: scale(.7); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+  .set.done { animation: brilho .6s ease; }
+  @keyframes brilho { from { background: color-mix(in srgb, var(--green) 40%, transparent); } }
+
+  /* anéis e barras se desenham ao aparecer */
+  .enter .ring-v { animation: anel 1s cubic-bezier(.2, .8, .2, 1) both; animation-delay: .15s; }
+  @keyframes anel { from { stroke-dashoffset: var(--c); } }
+  .enter .bar i { animation: encher 1s cubic-bezier(.2, .8, .2, 1) both; animation-delay: .2s; transform-origin: left; }
+  @keyframes encher { from { transform: scaleX(0); } }
+  .ring-v { transition: stroke-dashoffset .6s cubic-bezier(.2, .8, .2, 1); }
+
+  /* selo da sequência respira */
+  .selo.lit { animation: respira 3.2s ease-in-out infinite; }
+  .selo.pulse { animation: respira 1.2s ease-in-out infinite; }
+  @keyframes respira { 50% { box-shadow: inset 0 -6px 12px rgba(0, 0, 0, .35), inset 0 4px 8px rgba(255, 255, 255, .25), 0 6px 26px rgba(200, 50, 30, .55); } }
+  .shield.on { animation: pop .5s both; }
+
+  /* folha de baixo sobe */
+  dialog[open] { animation: folha .38s cubic-bezier(.2, .9, .25, 1); }
+  dialog[open]::backdrop { animation: fade .3s ease; }
+  @keyframes folha { from { transform: translateY(40%); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes fade { from { opacity: 0; } }
+
+  /* conquista: medalha gira e cai no lugar */
+  .unlock-medal { animation: medalha 1s cubic-bezier(.2, 1.4, .4, 1) both; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .3)); }
+  @keyframes medalha { 0% { transform: scale(.2) rotateY(540deg); opacity: 0; } 70% { opacity: 1; } 100% { transform: none; } }
+  .unlock h3, .unlock .eyebrow, .big-num { animation: subir .5s .45s both; }
+  .medal.got .medal-svg { transition: transform .4s; }
+  .medal.got:hover .medal-svg { transform: rotate(-8deg) scale(1.06); }
+
+  /* aba ativa da navegação */
+  .nav-i.on .nav-ic { animation: pop .35s; }
+  .nav-plus:active { transform: scale(.9) rotate(90deg); }
+  .live { animation: subir .4s both; }
+  .live b { animation: piscar 2s ease-in-out infinite; }
+  @keyframes piscar { 50% { opacity: .65; } }
+}
+
+/* "+10 XP" flutuante */
+.xp-float { position: fixed; z-index: 60; pointer-events: none; transform: translate(-50%, -50%); font-family: var(--serif); font-weight: 700; font-size: 1.3rem;
+  color: var(--gold); text-shadow: 0 1px 0 #fff, 0 2px 8px rgba(0, 0, 0, .2); animation: xp 1.1s cubic-bezier(.2, .8, .2, 1) forwards; }
+@keyframes xp { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); } 20% { opacity: 1; transform: translate(-50%, -80%) scale(1.15); } 100% { opacity: 0; transform: translate(-50%, -260%) scale(1); } }
+.confetti { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 70; }
+
+#toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px) scale(.95); opacity: 0; pointer-events: none;
+  background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 24px; transition: .3s cubic-bezier(.2, 1.4, .4, 1); z-index: 50; font-weight: 500; max-width: calc(100vw - 32px); text-align: center; }
+#toast.on { opacity: 1; transform: translate(-50%, 0) scale(1); }

@@ -22,21 +22,25 @@ const due = (hhmm: string | undefined, now: number) => { const t = toMin(hhmm); 
 
 function plan(docs: Doc[], tz: string): Note[] {
   const L = localNow(tz), get = (p: string) => docs.find((d) => d.path === p)?.data;
-  const cfg = get("config/main") || {}, r = { leitura: "21:00", treino: "18:00", habitos: true, resumo: true, ...(cfg.remind || {}) };
-  const goalPages = cfg.goalPages || 20, read = get(`reading/${L.iso}`)?.pages || 0, done = get(`habitlog/${L.iso}`)?.ids || {};
+  const cfg = get("config/main") || {}, r = { leitura: "21:00", treino: "18:00", devocional: "07:00", escrita: "", habitos: true, resumo: true, ...(cfg.remind || {}) };
+  const goalPages = cfg.goalPages || 20, read = get(`reading/${L.iso}`)?.pages || 0, log = get(`habitlog/${L.iso}`)?.ids || {};
   const habits = docs.filter((d) => d.path.startsWith("habits/")).map((d) => ({ id: d.path.slice(7), ...d.data }))
-    .filter((h) => !h.paused && (!h.days?.length || h.days.includes(L.dow)));
+    .filter((h) => !h.paused && (!h.days?.length || h.days.includes(L.dow)) && (!h.created || h.created <= L.iso));
+  const done = (h: any) => { const v = log[h.id]; return (v === true ? 1 : Number(v) || 0) >= (h.target || 1); };
   const trained = docs.some((d) => d.path.startsWith("workouts/") && d.data.date === L.iso);
+  const devo = docs.some((d) => d.path.startsWith("devos/") && d.data.date === L.iso) || Object.values(get("bible/main")?.read || {}).includes(L.iso);
+  const wrote = docs.some((d) => d.path.startsWith("journal/") && d.data.date === L.iso);
   const out: Note[] = [];
+  if (due(r.devocional, L.min) && !devo) out.push({ key: `devo-${L.iso}`, title: "Devocional", body: "Um tempo com Deus antes do dia começar. Seu versículo de hoje está esperando.", url: "./#devocional" });
   if (due(r.leitura, L.min) && read < goalPages)
     out.push({ key: `leitura-${L.iso}`, title: "Hora da leitura", body: read ? `Faltam ${goalPages - read} páginas para a meta de hoje.` : `${goalPages} páginas hoje mantêm a sequência viva.`, url: "./#leitura" });
-  if (due(r.treino, L.min) && !trained)
-    out.push({ key: `treino-${L.iso}`, title: "Treino de hoje", body: "Ainda não tem treino registrado hoje. Bora?", url: "./#treino" });
-  if (r.habitos) for (const h of habits) if (!done[h.id] && due(h.time, L.min))
-    out.push({ key: `habito-${h.id}-${L.iso}`, title: h.name, body: "Lembrete do seu hábito. Marque quando fizer.", url: "./#habitos" });
+  if (due(r.treino, L.min) && !trained) out.push({ key: `treino-${L.iso}`, title: "Treino de hoje", body: "Ainda não tem treino registrado hoje. Bora?", url: "./#treino" });
+  if (due(r.escrita, L.min) && !wrote) out.push({ key: `escrita-${L.iso}`, title: "Escrever", body: "Poucas linhas já bastam. A pergunta do dia está no app.", url: "./#escrita" });
+  if (r.habitos) for (const h of habits) if (!done(h) && due(h.time, L.min))
+    out.push({ key: `habito-${h.id}-${L.iso}`, title: h.name, body: h.target > 1 ? `Meta de hoje: ${h.target}×. Marque no app.` : "Lembrete do seu hábito. Marque quando fizer.", url: "./#habitos" });
   if (r.resumo && due("22:00", L.min)) {
-    const falta = habits.filter((h) => !done[h.id]).length;
-    if (read < goalPages || falta) out.push({ key: `resumo-${L.iso}`, title: "Antes de dormir", body: [read < goalPages ? `${goalPages - read} páginas` : "", falta ? `${falta} hábito(s)` : ""].filter(Boolean).join(" e ") + " para fechar o dia.", url: "./#inicio" });
+    const falta = habits.filter((h) => !done(h)).length, itens = [read < goalPages ? `${goalPages - read} páginas` : "", falta ? `${falta} hábito(s)` : "", cfg.missao?.devocional !== false && !devo ? "o devocional" : ""].filter(Boolean);
+    if (itens.length) out.push({ key: `resumo-${L.iso}`, title: "Antes de dormir", body: `Falta ${itens.join(", ")} para fechar o dia e não perder a sequência.`, url: "./#inicio" });
   }
   return out;
 }
@@ -48,7 +52,7 @@ Deno.serve(async (req) => {
   let sent = 0;
   for (const uid of users) {
     const { data: docs } = await db.from("docs").select("path,data").eq("user_id", uid).eq("deleted", false)
-      .or("path.eq.config/main,path.like.habits/*,path.like.reading/*,path.like.habitlog/*,path.like.workouts/*");
+      .or("path.eq.config/main,path.eq.bible/main,path.like.habits/*,path.like.reading/*,path.like.habitlog/*,path.like.workouts/*,path.like.devos/*,path.like.journal/*");
     const mine = (subs || []).filter((s) => s.user_id === uid);
     const notes = plan((docs || []) as Doc[], mine[0].tz || "America/Sao_Paulo");
     for (const n of notes) {
