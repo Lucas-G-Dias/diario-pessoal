@@ -1,4 +1,4 @@
-// Diário Pessoal: envia os lembretes (roda a cada 15 min pelo pg_cron)
+// Ritmo: envia os lembretes (roda a cada 15 min pelo pg_cron)
 // Segredos (só no Supabase): VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, CRON_SECRET
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";

@@ -1,8 +1,8 @@
 /* ============ gamificação: XP por área, nível, sequência com escudos, missão, conquistas ============ */
 const XP = { pagina: 1, habito: 10, treino: 40, pr: 30, livro: 100, citacao: 5, diaCompleto: 25, meta: 150, devocional: 20, capitulo: 3, oracao: 20, diario: 15 };
 const TITULOS = ['Aprendiz', 'Iniciado', 'Constante', 'Disciplinado', 'Focado', 'Inabalável', 'Mestre', 'Sábio', 'Lenda'];
-const AREAS = { habitos: ['Hábitos', 'habit', '#1f4a40'], leitura: ['Leitura', 'book', '#7a4a2a'], treino: ['Treino', 'gym', '#9b2420'],
-  devocional: ['Devocional', 'cross', '#b8873a'], escrita: ['Escrita', 'pen', '#3d5a80'], metas: ['Metas', 'target', '#6b4a7a'], bonus: ['Bônus', 'sparkle', '#8b5a3c'] };
+const AREAS = { habitos: ['Hábitos', 'habit', '#30b158'], leitura: ['Leitura', 'book', '#ff9f0a'], treino: ['Treino', 'gym', '#ff375f'],
+  devocional: ['Devocional', 'cross', '#5e5ce6'], escrita: ['Escrita', 'pen', '#0a84ff'], metas: ['Metas', 'target', '#bf5af2'], bonus: ['Bônus', 'sparkle', '#ff5a1f'] };
 
 /* dias com algum registro, e quais áreas tiveram registro em cada dia (para o mapa do ano) */
 function activity() {

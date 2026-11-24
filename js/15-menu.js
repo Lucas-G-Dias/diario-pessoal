@@ -2,12 +2,12 @@
 function menuTiles() {
   const g = game(), b = books().find((x) => x.status === 'lendo'), p = planInfo(), gs = goals(), hit = gs.filter((x) => goalStatus(x).hit).length;
   return [
-    ['leitura', 'Leitura', 'book', '#7a4a2a', b ? `${Math.round(((b.page || 0) / b.pages) * 100)}% de ${b.title}` : 'Nenhum livro em andamento'],
-    ['devocional', 'Devocional', 'cross', '#b8873a', `${devoStreak()} dias · ${p.lidos}/${p.total} capítulos`],
-    ['escrita', 'Escrita', 'pen', '#3d5a80', `${journal().length} entradas · ${escritaStreak()} dias`],
-    ['metas', 'Metas', 'target', '#6b4a7a', gs.length ? `${hit} de ${gs.length} batidas agora` : 'Defina sua primeira meta'],
-    ['conquistas', 'Conquistas', 'trophy', '#9b2420', `Nível ${g.level.n} · ${g.conq.reduce((a, c) => a + c.tier, 0)} medalhas`],
-    ['ajustes', 'Ajustes', 'gear', '#5a5048', 'Metas diárias, missão, lembretes, conta'],
+    ['leitura', 'Leitura', 'book', '#ff9f0a', b ? `${Math.round(((b.page || 0) / b.pages) * 100)}% de ${b.title}` : 'Nenhum livro em andamento'],
+    ['devocional', 'Devocional', 'cross', '#5e5ce6', `${devoStreak()} dias · ${p.lidos}/${p.total} capítulos`],
+    ['escrita', 'Escrita', 'pen', '#0a84ff', `${journal().length} entradas · ${escritaStreak()} dias`],
+    ['metas', 'Metas', 'target', '#bf5af2', gs.length ? `${hit} de ${gs.length} batidas agora` : 'Defina sua primeira meta'],
+    ['conquistas', 'Conquistas', 'trophy', '#ff5a1f', `Nível ${g.level.n} · ${g.conq.reduce((a, c) => a + c.tier, 0)} medalhas`],
+    ['ajustes', 'Ajustes', 'gear', '#8e8e93', 'Metas diárias, missão, lembretes, conta'],
   ];
 }
 VIEWS.menu = () => `<header class="top"><h1 class="serif">Menu</h1></header>
@@ -35,6 +35,7 @@ VIEWS.ajustes = () => {
       ${chk('habitos', r.habitos, 'Avisar no horário de cada hábito')}${chk('resumo', r.resumo, 'Resumo às 22h se a missão não foi cumprida')}
       <p class="tiny muted">Deixe um horário vazio para não receber aquele lembrete. Só avisa se a tarefa ainda não foi feita.</p>
       <div class="form-actions"><button class="btn">Salvar lembretes</button></div></form>
+    <section class="card"><span class="eyebrow">Aparência</span><div class="seg" role="group" aria-label="Tema">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Escuro']].map(([k, n]) => `<button class="${(S.theme || 'auto') === k ? 'on' : ''}" data-act="tema" data-id="${k}" aria-pressed="${(S.theme || 'auto') === k}">${n}</button>`).join('')}</div></section>
     <section class="card"><span class="eyebrow">Conta</span>
       <p class="muted">${LOCAL ? 'Modo local: os dados ficam só neste aparelho.' : `Conectado como <b>${esc(S.user?.email)}</b>`}${store.outbox.length ? ` · ${store.outbox.length} alteração(ões) aguardando internet` : ''}</p>
       <div class="form-actions start"><button class="btn ghost" data-act="exportar">Baixar backup</button>${LOCAL ? '' : `<button class="btn ghost danger" data-act="sair">${ic('out', 16)} Sair</button>`}</div></section>`;
@@ -43,7 +44,7 @@ VIEWS.ajustes = () => {
 Object.assign(ACT, {
   exportar: () => {
     const blob = new Blob([JSON.stringify(store.docs, null, 1)], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `diario-pessoal-${today()}.json`; a.click();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ritmo-backup-${today()}.json`; a.click();
   },
   sair: async () => { if (!confirm('Sair desta conta neste aparelho?')) return; await sb.auth.signOut(); localStorage.removeItem(store.key()); location.reload(); },
   ativarPush: async () => {

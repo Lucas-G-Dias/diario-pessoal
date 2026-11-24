@@ -1,12 +1,17 @@
 {
-  "name": "Diário Pessoal",
-  "short_name": "Diário",
-  "description": "Leitura, hábitos e treino. Um dia de cada vez.",
+  "name": "Ritmo",
+  "short_name": "Ritmo",
+  "description": "Hábitos, treino, leitura, fé e escrita. Um dia de cada vez.",
   "start_url": "./#inicio",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#efe8da",
-  "theme_color": "#efe8da",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f2f2f7",
   "lang": "pt-BR",
-  "icons": [{ "src": "icons/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
 }

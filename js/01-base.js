@@ -26,10 +26,16 @@ const greeting = () => { const h = new Date().getHours(); return h < 5 ? 'Boa no
 const ACT = {}, FORMS = {}, CHG = {}, VIEWS = {};
 const S = { page: 'inicio', user: null, auth: 'loading', online: navigator.onLine, tap: null };
 
+/* marca: Ritmo. A logo é um anel quase fechado (o dia sendo cumprido) com uma faísca (a conquista). */
+const APP = 'Ritmo';
+const LOGO = (s = 32) => `<svg viewBox="0 0 512 512" width="${s}" height="${s}" aria-hidden="true" class="logo"><defs><linearGradient id="lg${s}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFA21F"/><stop offset=".55" stop-color="#FF5A1F"/><stop offset="1" stop-color="#E8243F"/></linearGradient></defs>
+  <rect width="512" height="512" rx="116" fill="url(#lg${s})"/><circle cx="244" cy="280" r="128" fill="none" stroke="#fff" stroke-width="44" stroke-linecap="round" stroke-dasharray="650 804" transform="rotate(-25 244 280)"/>
+  <path transform="translate(366 132) scale(62)" fill="#fff" d="M0-1C.14-.14.14-.14 1 0C.14.14.14.14 0 1C-.14.14-.14.14-1 0C-.14-.14-.14-.14 0-1Z"/></svg>`;
+
 /* cores: lombadas, hábitos */
 const SPINES = ['#1f4a40', '#9b2420', '#7a4a2a', '#d9cdb4', '#4a3328', '#a33a2a', '#264c4c', '#8b5a3c', '#e2d6bd', '#b23a3a'];
 const lightSpine = (c) => ['#d9cdb4', '#e2d6bd'].includes(c);
-const HCORES = ['#1f4a40', '#9b2420', '#b8873a', '#3d5a80', '#6b4a7a', '#7a4a2a', '#2f7a6a', '#c05a2a'];
+const HCORES = ['#30b158', '#ff5a1f', '#ff9f0a', '#0a84ff', '#5e5ce6', '#bf5af2', '#ff375f', '#30b0c7'];
 
 const ICONS = {
   home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
@@ -68,7 +74,7 @@ const ICONS = {
 const ic = (n, s = 22) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ''}</svg>`;
 
 /* humor: 1 (péssimo) a 5 (ótimo), carinhas desenhadas */
-const MOODS = [['Péssimo', '#8a3a3a', 'M8 17c2-2 6-2 8 0'], ['Ruim', '#b0703a', 'M8.5 16.5c2-1 5-1 7 0'], ['Ok', '#9a8a5a', 'M8.5 15.5h7'], ['Bem', '#4a8a6a', 'M8.5 14.5c2 1.5 5 1.5 7 0'], ['Ótimo', '#1f6a52', 'M8 14c2 3 6 3 8 0']];
+const MOODS = [['Péssimo', '#ff453a', 'M8 17c2-2 6-2 8 0'], ['Ruim', '#ff9f0a', 'M8.5 16.5c2-1 5-1 7 0'], ['Ok', '#c7b22e', 'M8.5 15.5h7'], ['Bem', '#34c759', 'M8.5 14.5c2 1.5 5 1.5 7 0'], ['Ótimo', '#0a84ff', 'M8 14c2 3 6 3 8 0']];
 const moodIc = (n, s = 28) => { const [nome, cor, boca] = MOODS[n - 1] || MOODS[2]; return `<svg viewBox="0 0 24 24" width="${s}" height="${s}" aria-label="${nome}" role="img"><circle cx="12" cy="12" r="10" fill="${cor}"/><circle cx="9" cy="10" r="1.2" fill="#fff"/><circle cx="15" cy="10" r="1.2" fill="#fff"/><path d="${boca}" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`; };
 
 let TOAST_T = null;

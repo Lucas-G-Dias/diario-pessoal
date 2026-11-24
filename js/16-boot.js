@@ -3,24 +3,41 @@ const NAV = [['inicio', 'Início', 'home'], ['habitos', 'Hábitos', 'habit'], nu
 const NAV_DE = { sessao: 'treino', leitura: 'menu', devocional: 'menu', escrita: 'menu', metas: 'menu', conquistas: 'menu', ajustes: 'menu' };
 const SUB = ['leitura', 'devocional', 'escrita', 'metas', 'conquistas', 'ajustes'];
 
+/* barra lateral de vidro (computador) */
+const SIDE = [['Hoje', [['inicio', 'Início', 'home'], ['habitos', 'Hábitos', 'habit'], ['treino', 'Treino', 'gym']]],
+  ['Áreas', [['leitura', 'Leitura', 'book'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen']]],
+  ['Progresso', [['metas', 'Metas', 'target'], ['conquistas', 'Conquistas', 'trophy']]]];
+function sidebar(ativo) {
+  const g = game(), nome = cfg().name || 'Você', v = verseOfDay();
+  return `<aside class="side" aria-label="Navegação"><div class="brand">${LOGO(34)}<span>${APP}</span></div>
+    <button class="me" data-page="conquistas"><span class="avatar">${esc(nome[0] || 'V').toUpperCase()}<i>${g.level.n}</i></span>
+      <span class="grow"><b>${esc(nome.split(' ')[0])}</b><span class="tiny muted">Nível ${g.level.n} · ${g.level.title}</span>${progressBar(g.level.pct, 'gold')}</span></button>
+    ${SIDE.map(([t, items]) => `<span class="side-t">${t}</span>${items.map(([pg, n, i]) => `<button class="side-i ${ativo === pg ? 'on' : ''}" data-page="${pg}" ${ativo === pg ? 'aria-current="page"' : ''}>${ic(i, 18)}<span>${n}</span>${pg === 'inicio' && g.streak ? `<em>${ic('flame', 12)}${g.streak}</em>` : ''}</button>`).join('')}`).join('')}
+    <button class="side-note" data-page="devocional"><span class="eyebrow">Versículo do dia</span><span class="vtxt">“${esc(v[1])}”</span><b>${esc(v[0])}</b></button>
+    <button class="side-i ${ativo === 'ajustes' ? 'on' : ''}" data-page="ajustes">${ic('gear', 18)}<span>Ajustes</span></button></aside>`;
+}
+
 function render() {
   const app = $('#app');
-  if (S.auth === 'loading') { app.innerHTML = '<div class="loading serif"><div class="selo lit pulse"><b>·</b></div>Abrindo o diário…</div>'; return; }
+  if (S.auth === 'loading') { app.innerHTML = `<div class="loading">${LOGO(72)}<span>${APP}</span></div>`; return; }
   if (S.auth === 'out') { app.innerHTML = loginView(); return; }
-  const view = VIEWS[S.page] || VIEWS.inicio, novo = S.page !== S.lastPage, y = novo ? 0 : scrollY, ativo = NAV_DE[S.page] || S.page;
+  const view = VIEWS[S.page] || VIEWS.inicio, novo = S.page !== S.lastPage, y = novo ? 0 : scrollY, ativo = NAV_DE[S.page] || S.page, g = game();
   S.lastPage = S.page;
-  const nav = NAV.map((n) => n ? `<button class="nav-i ${ativo === n[0] ? 'on' : ''}" data-page="${n[0]}" ${ativo === n[0] ? 'aria-current="page"' : ''}><span class="nav-ic">${ic(n[2])}</span>${n[1]}</button>`
+  const nav = NAV.map((n) => n ? `<button class="nav-i ${ativo === n[0] ? 'on' : ''}" data-page="${n[0]}" ${ativo === n[0] ? 'aria-current="page"' : ''}><span class="nav-ic">${ic(n[2])}</span><span class="nav-l">${n[1]}</span></button>`
     : `<button class="nav-plus" data-act="rapido" aria-label="Registrar algo">${ic('plus', 26)}</button>`).join('');
   app.innerHTML = `${!S.online ? '<div class="banner">Sem internet. Os registros ficam guardados e sobem quando voltar.</div>' : ''}
     ${LOCAL && !S.hideLocal ? '<div class="banner">Modo local (servidor não conectado). <button class="link" data-act="ocultarAviso">Ok</button></div>' : ''}
-    <main class="page ${novo ? 'enter' : ''}">${SUB.includes(S.page) ? `<button class="back" data-page="menu">${ic('chev', 16)} Menu</button>` : ''}${view()}</main><nav class="nav">${nav}</nav>`;
+    <div class="shell">${sidebar(S.page)}<div class="col">
+    <header class="appbar"><div class="brand">${LOGO(28)}<span>${APP}</span></div><button class="lvl-chip" data-page="conquistas" aria-label="Nível ${g.level.n}, ver conquistas">${ic('flame', 14)}<b>${g.streak}</b><span class="avatar sm">${g.level.n}</span></button></header>
+    <main class="page pg-${S.page} ${novo ? 'enter' : ''}">${SUB.includes(S.page) ? `<button class="back" data-page="menu">${ic('chev', 16)} Menu</button>` : ''}${view()}</main></div></div>
+    <nav class="nav" aria-label="Abas">${nav}</nav>`;
   scrollTo(0, y);
 }
 
 function loginView() {
   const criar = S.authMode === 'criar';
-  return `<main class="login enter"><div class="selo lit"><b>${ic('book', 34)}</b></div><h1 class="serif">Diário Pessoal</h1>
-    <em class="muted">Hábitos, treino, leitura, fé e escrita. Um dia de cada vez.</em>
+  return `<main class="login enter">${LOGO(88)}<h1>${APP}</h1>
+    <p class="muted">Hábitos, treino, leitura, fé e escrita.<br>Um dia de cada vez.</p>
     <form class="card" data-form="login"><label>E-mail<input name="email" type="email" required autocomplete="email"></label>
     <label>Senha<input name="password" type="password" required minlength="6" autocomplete="${criar ? 'new-password' : 'current-password'}"></label>
     <p class="err" role="alert">${esc(S.authErr || '')}</p><button class="btn wide">${criar ? 'Criar conta' : 'Entrar'}</button>
@@ -90,6 +107,12 @@ setInterval(() => {
 }, 1000);
 
 /* ---- início ---- */
+/* tema: automático, claro ou escuro (preferência deste aparelho) */
+function applyTheme(t) { try { t = t ?? localStorage.getItem('dp-theme') ?? 'auto'; localStorage.setItem('dp-theme', t); } catch { t = t || 'auto'; }
+  if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = t; S.theme = t; }
+ACT.tema = (t) => { applyTheme(t); render(); };
+applyTheme();
+
 async function boot() {
   const h = location.hash.slice(1); if (VIEWS[h]) S.page = h;
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

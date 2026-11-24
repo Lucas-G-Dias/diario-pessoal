@@ -18,7 +18,7 @@ function confetti(n = 110) {
   haptic([20, 40, 20]);
   const c = document.createElement('canvas'), x = c.getContext('2d'), W = innerWidth, H = innerHeight, dpr = devicePixelRatio || 1;
   c.className = 'confetti'; c.width = W * dpr; c.height = H * dpr; x.scale(dpr, dpr); document.body.appendChild(c);
-  const cores = ['#9b2420', '#d4a63a', '#1f4a40', '#e0574a', '#3d5a80', '#efe3c8'];
+  const cores = ['#ff5a1f', '#ffa21f', '#30b158', '#0a84ff', '#5e5ce6', '#ff375f', '#ffd60a'];
   const ps = Array.from({ length: n }, () => ({ x: W / 2 + (Math.random() - 0.5) * 80, y: H * 0.35, vx: (Math.random() - 0.5) * 11, vy: -Math.random() * 12 - 4,
     r: Math.random() * 6 + 4, a: Math.random() * 6, va: (Math.random() - 0.5) * 0.4, c: cores[Math.floor(Math.random() * cores.length)] }));
   const t0 = performance.now();
@@ -65,6 +65,14 @@ function unlockModal(c, tier, total) {
     <span class="eyebrow red">${TIERS[tier]}</span><h3 class="serif">${esc(c.nome)}</h3>
     <p class="muted">${fmt(c.tiers[tier])} ${esc(c.unit)}${total > 1 ? ` · e mais ${total - 1} ${total - 1 === 1 ? 'conquista' : 'conquistas'}` : ''}</p>
     <button class="btn wide" data-page="conquistas">Ver conquistas</button></div>`);
+}
+
+/* minigráfico de linha com área (cartões de números) */
+function sparkline(vals, cor, w = 120, h = 36) {
+  const max = Math.max(1, ...vals), n = vals.length, pts = vals.map((v, i) => [(i / (n - 1)) * w, h - 3 - (v / max) * (h - 8)]);
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' '), id = 'sp' + Math.random().toString(36).slice(2, 7);
+  return `<svg class="spk" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${cor}" stop-opacity=".28"/><stop offset="1" stop-color="${cor}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${d} L${w} ${h} L0 ${h}Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${cor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
 }
 
 /* barra de progresso */

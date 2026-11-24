@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ritmo · Identidade visual</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root { --grad: linear-gradient(135deg, #ffa21f, #ff5a1f 55%, #e8243f); }
+  * { box-sizing: border-box; } body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #f2f2f7; color: #1d1d1f; letter-spacing: -.011em; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 24px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .c { background: #fff; border-radius: 26px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.06); }
+  h1 { font-size: 64px; letter-spacing: -.055em; margin: 0; font-weight: 800; } h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: #6e6e73; margin: 0 0 18px; font-weight: 600; }
+  p { color: #6e6e73; line-height: 1.5; margin: 6px 0 0; }
+  .hero { grid-column: span 4; display: flex; gap: 28px; align-items: center; background: var(--grad); color: #fff; }
+  .hero p { color: rgba(255,255,255,.85); font-size: 18px; } .hero img { width: 150px; border-radius: 34px; box-shadow: 0 20px 40px rgba(120,20,0,.35); }
+  .dark { grid-column: span 2; background: #000; color: #fff; display: grid; place-items: center; gap: 10px; text-align: center; }
+  .wm { display: flex; align-items: center; gap: 12px; font-size: 34px; font-weight: 800; letter-spacing: -.05em; } .wm img { width: 46px; border-radius: 11px; }
+  .sw { grid-column: span 6; } .cores { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; }
+  .cor { border-radius: 16px; height: 96px; padding: 10px; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; font-size: 12px; font-weight: 600; }
+  .cor small { opacity: .8; font-weight: 500; }
+  .tipo { grid-column: span 3; } .tipo .a { font-size: 56px; font-weight: 800; letter-spacing: -.05em; line-height: 1; } .tipo .b { font: italic 30px/1.3 Newsreader, serif; margin-top: 14px; }
+  .voz { grid-column: span 3; } .voz li { margin: 8px 0; color: #3a3a3c; } .ic { grid-column: span 6; display: flex; gap: 22px; align-items: flex-end; }
+  .ic figure { margin: 0; text-align: center; font-size: 12px; color: #6e6e73; } .ic img { display: block; margin-bottom: 8px; }
+</style></head><body><div class="wrap">
+  <section class="c hero"><img src="../icons/icon-512.png" alt="Ícone do Ritmo"><div><h1>Ritmo</h1><p>Hábitos, treino, leitura, fé e escrita. Um dia de cada vez.</p>
+    <p>O anel quase fechado é o dia sendo cumprido; a faísca é a conquista que vem com a constância.</p></div></section>
+  <section class="c dark"><div class="wm"><img src="../icons/icon-192.png" alt="">Ritmo</div><p style="color:#98989d">Versão no escuro</p></section>
+  <section class="c sw"><h2>Cores</h2><div class="cores">
+    <div class="cor" style="background:var(--grad)">Brasa<small>#FF5A1F → #FFA21F</small></div>
+    <div class="cor" style="background:#1d1d1f">Tinta<small>#1D1D1F</small></div>
+    <div class="cor" style="background:#30b158">Hábitos<small>#30B158</small></div>
+    <div class="cor" style="background:#ff9f0a">Leitura<small>#FF9F0A</small></div>
+    <div class="cor" style="background:#ff375f">Treino<small>#FF375F</small></div>
+    <div class="cor" style="background:#5e5ce6">Devocional<small>#5E5CE6</small></div>
+    <div class="cor" style="background:#0a84ff">Escrita<small>#0A84FF</small></div>
+    <div class="cor" style="background:#bf5af2">Metas<small>#BF5AF2</small></div></div></section>
+  <section class="c tipo"><h2>Tipografia</h2><div class="a">Inter 800</div><p>Interface, números e títulos. Apertada e direta, como o sistema da Apple.</p>
+    <div class="b">“Newsreader itálico, para versículos, citações e escrita.”</div></section>
+  <section class="c voz"><h2>Tom de voz</h2><ul><li>Fala como um amigo que acredita em você, nunca como um chefe.</li><li>Frases curtas, em português simples.</li>
+    <li>Comemora o pequeno: “+10 XP”, “Dia cumprido. Bom trabalho.”</li><li>Falhar um dia não é fracasso: o escudo protege a sequência.</li></ul></section>
+  <section class="c ic"><h2 style="margin-right:auto">Ícone do app</h2><figure><img src="../icons/icon-512.png" width="120" style="border-radius:27px">iPhone / Android</figure>
+    <figure><img src="../icons/icon-192.png" width="64" style="border-radius:15px">Tela de início</figure><figure><img src="../icons/favicon.svg" width="32">Navegador</figure></section>
+</div></body></html>

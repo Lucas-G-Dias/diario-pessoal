@@ -1,6 +1,6 @@
-# Diário Pessoal: mapa do projeto
+# Ritmo: mapa do projeto
 
-PWA pessoal com hábitos, treino (musculação), leitura, devocional, escrita, metas e conquistas, tudo gamificado (XP, nível,
+**Ritmo** (antes "Diário Pessoal"): PWA pessoal com hábitos, treino (musculação), leitura, devocional, escrita, metas e conquistas, tudo gamificado (XP, nível,
 sequência com escudos, 60 medalhas em 4 níveis) e com lembretes por push. HTML + JS puro, sem build. Publicado pelo GitHub Pages.
 Dados no Supabase (projeto `kvywtrdukwevesgbjghd`, São Paulo; login por e-mail e senha, tabela `docs` por usuário).
 Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em português do Brasil.
@@ -25,9 +25,16 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/15-menu.js` | Menu (todas as áreas) e Ajustes |
 | `js/16-boot.js` | `render()` com transição, navegação, folha de baixo, eventos, relógio de 1 s, início (sempre o último) |
 | `css/base.css` · `telas.css` · `areas.css` · `motion.css` | tokens e formulários · casca/Início/Hábitos/Metas · demais áreas · animações |
+| `icons/` · `docs/marca.html` | logo (`logo.svg`, PNGs do ícone) e guia da identidade visual |
 | `sw.js` | offline e notificações |
 | `supabase/schema.sql` | tabelas e RLS |
 | `supabase/functions/lembretes` | lembretes push (pg_cron a cada 15 min) |
+
+## Identidade
+- Estilo Apple: fundo neutro, cartões de vidro (`.card` com `backdrop-filter`), cantos de 22px, Inter para tudo e Newsreader itálico só para versículos, citações e escrita.
+- Marca: gradiente brasa (`--grad`). Cada área tem uma cor fixa em `AREAS` (03-jogo.js) e nos tokens; não invente cores novas.
+- Celular: barra do topo + barra de abas flutuante. Computador (≥1024px): barra lateral de vidro (`sidebar()` em 16-boot.js) e páginas em grade de 2 colunas (`.pg-<página>`).
+- Tema: automático, claro ou escuro (`data-theme` no `<html>`, escolhido em Ajustes).
 
 ## Padrões
 - Caminhos: `config/main`, `config/seen`, `books/`, `quotes/`, `reading/<data>`, `habits/`, `habitlog/<data>`, `workouts/`, `routines/`,

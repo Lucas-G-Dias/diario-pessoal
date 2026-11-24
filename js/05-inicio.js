@@ -60,8 +60,24 @@ function lendoMini() {
       <button class="btn-sm ghost" data-act="registrarLeitura" data-id="${b.id}">Registrar páginas</button></div></div></section>`;
 }
 
+/* números da semana com minigráfico de 14 dias e comparação com a semana anterior */
+function kpis() {
+  const dias = lastDays(14), read = bibleRead(), devDias = new Set([...devos().map((d) => d.date), ...Object.values(read)]);
+  const habDia = (d) => { const hs = habits().filter((h) => habitDueOn(h, d)), log = habitsDone(d); return hs.length ? (hs.filter((h) => hDone(h, log)).length / hs.length) * 100 : 0; };
+  const serie = { habitos: dias.map(habDia), leitura: dias.map(readingOn), treino: dias.map((d) => workouts().filter((w) => w.date === d).length), devocional: dias.map((d) => (devDias.has(d) ? 1 : 0)) };
+  const soma = (a) => a.reduce((x, y) => x + y, 0), media = (a) => soma(a) / a.length;
+  const cards = [['habitos', 'Hábitos', (a) => Math.round(media(a)), '%', '/habitos'], ['leitura', 'Páginas', soma, '', '/leitura'],
+    ['treino', 'Treinos', soma, '', '/treino'], ['devocional', 'Devocional', soma, ' dias', '/devocional']];
+  return `<div class="kpis">${cards.map(([k, nome, fn, suf, pg], i) => { const v = fn(serie[k].slice(7)), a = fn(serie[k].slice(0, 7)), d = v - a, cor = AREAS[k][2];
+    return `<button class="card kpi" style="--hc:${cor};--i:${i}" data-page="${pg.slice(1)}"><span class="kpi-h"><span class="kpi-ic">${ic(AREAS[k][1], 15)}</span>${nome}</span>
+      <b class="kpi-v">${fmt(v)}<small>${suf}</small></b><span class="kpi-d ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d ? (d > 0 ? '↑ ' : '↓ ') + fmt(Math.abs(d)) : '='} <span class="muted">vs. 7 dias antes</span></span>
+      ${sparkline(serie[k], cor)}</button>`; }).join('')}</div>`;
+}
+
 VIEWS.inicio = () => {
   const g = game(), nome = cfg().name;
-  return `<header class="top"><div><span class="eyebrow">${longDate(today())}</span><h1 class="serif">${greeting()}${nome ? ', ' + esc(nome.split(' ')[0]) : ''}</h1></div></header>
-    ${liveBanner()}${heroCard(g)}${missionCard()}${lendoMini()}${metasMini()}${verseCard()}`;
+  const m = mission();
+  return `<header class="top"><div><span class="eyebrow">${longDate(today())}</span><h1>${greeting()}${nome ? ', <span class="grad-t">' + esc(nome.split(' ')[0]) + '</span>' : ''}</h1>
+    <p class="sub muted">${m.complete ? 'Missão de hoje cumprida. Aproveite o descanso.' : `Faltam ${m.items.filter((i) => !i.opt && !i.ok).length} itens da missão de hoje · ${g.streak} dias de sequência`}</p></div></header>
+    ${liveBanner()}${kpis()}${heroCard(g)}${missionCard()}${lendoMini()}${metasMini()}${verseCard()}`;
 };

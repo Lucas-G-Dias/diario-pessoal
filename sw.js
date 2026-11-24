@@ -1,6 +1,6 @@
-// Diário Pessoal: funciona offline e recebe os lembretes
-const CACHE = 'dp-v4';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/favicon.svg', './vendor/supabase.js',
+// Ritmo: funciona offline e recebe os lembretes
+const CACHE = 'ritmo-v1';
+const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/favicon.svg', './icons/logo.svg', './icons/icon-192.png', './icons/apple-touch-icon.png', './vendor/supabase.js',
   './css/base.css', './css/telas.css', './css/areas.css', './css/motion.css',
   './js/00-config.js', './js/01-base.js', './js/02-dados.js', './js/03-jogo.js', './js/04-efeitos.js', './js/05-inicio.js', './js/06-habitos.js', './js/07-treino.js', './js/08-sessao.js', './js/09-leitura.js', './js/10-biblia.js', './js/11-devocional.js', './js/12-escrita.js', './js/13-metas.js', './js/14-conquistas.js', './js/15-menu.js', './js/16-boot.js'];
 
@@ -16,7 +16,7 @@ self.addEventListener('fetch', (e) => {
 });
 self.addEventListener('push', (e) => {
   let d = {}; try { d = e.data.json(); } catch { d = { body: e.data ? e.data.text() : '' }; }
-  e.waitUntil(self.registration.showNotification(d.title || 'Diário Pessoal', { body: d.body || '', icon: 'icons/favicon.svg', tag: d.tag, data: { url: d.url || './' } }));
+  e.waitUntil(self.registration.showNotification(d.title || 'Ritmo', { body: d.body || '', icon: 'icons/icon-192.png', tag: d.tag, data: { url: d.url || './' } }));
 });
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
