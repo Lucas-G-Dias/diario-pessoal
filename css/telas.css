@@ -220,3 +220,44 @@ form:has(select[name=kind] option[value=manual]:checked) .only-manual { display:
   .mring .ring-wrap { transform: scale(.86); } .kpi-v { font-size: 1.5rem; }
 }
 @media (min-width: 1024px) { .pg-inicio > .verse { display: none; } }
+
+/* foto do perfil, topo do celular */
+.avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.app-acts { display: flex; align-items: center; gap: 6px; }
+.app-acts .icon-btn { background: var(--paper); border: 1px solid var(--stroke); }
+.lvl-chip .avatar { width: 28px; height: 28px; }
+.perfil-row { display: flex; align-items: center; gap: 14px; }
+.perfil { text-align: left; }
+.perfil-foto { display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 6px 0 14px; }
+.perfil-foto .avatar { box-shadow: 0 10px 30px color-mix(in srgb, var(--brand) 35%, transparent); }
+.foto-btn { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 7px 14px; border-radius: 999px; background: var(--fill); color: var(--ink); font-size: .88rem; cursor: pointer; }
+.perfil-nivel { text-align: center; margin-bottom: 16px; display: flex; flex-direction: column; }
+.bday { display: flex; align-items: center; gap: 14px; color: #fff; border: 0; background: linear-gradient(135deg, #ff5a1f, #ff375f 55%, #bf5af2); box-shadow: 0 14px 34px rgba(255, 55, 95, .3); }
+.bday .eyebrow { color: rgba(255, 255, 255, .8); } .bday > div { display: flex; flex-direction: column; gap: 2px; }
+
+/* barra lateral: rodapé, recolher */
+@media (min-width: 1024px) {
+  .side .brand { position: relative; }
+  .side-tog { margin-left: auto; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: var(--muted); }
+  .side-tog:hover { background: var(--fill); color: var(--ink); }
+  .side-foot { display: flex; flex-direction: column; gap: 2px; }
+  .side, .side .lbl, .side-note { transition: width .38s cubic-bezier(.2, .9, .25, 1), opacity .25s, box-shadow .3s; }
+  .shell.mini .side { position: fixed; left: 16px; top: 16px; bottom: 16px; height: auto; margin: 0; width: 76px; z-index: 20; overflow-x: hidden; padding: 18px 14px; }
+  .shell.mini .col { margin-left: 92px; }
+  .shell.mini .side .lbl, .shell.mini .side .side-note { opacity: 0; pointer-events: none; white-space: nowrap; }
+  .shell.mini .side .side-t { height: 10px; padding: 0; overflow: hidden; }
+  .shell.mini .side .side-note { max-height: 0; padding: 0; margin: auto 0 0; overflow: hidden; }
+  .shell.mini .side .me { padding: 6px 4px; background: none; }
+  .shell.mini .side .brand { padding-left: 7px; }
+  .shell.mini .side .side-tog { position: absolute; right: -2px; opacity: 0; }
+  .shell.mini .side:hover, .shell.mini .side:focus-within { width: 264px; box-shadow: var(--shadow-lg); }
+  .shell.mini .side:hover .lbl, .shell.mini .side:focus-within .lbl { opacity: 1; pointer-events: auto; transition-delay: .12s; }
+  .shell.mini .side:hover .side-t, .shell.mini .side:focus-within .side-t { height: auto; padding: 14px 12px 4px; }
+  .shell.mini .side:hover .side-note, .shell.mini .side:focus-within .side-note { opacity: 1; max-height: 260px; padding: 14px; pointer-events: auto; transition-delay: .12s; }
+  .shell.mini .side:hover .me, .shell.mini .side:focus-within .me { padding: 12px; background: var(--fill); }
+  .shell.mini .side:hover .side-tog, .shell.mini .side:focus-within .side-tog { opacity: 1; position: static; }
+  .side .lbl { white-space: nowrap; }
+  .side-i svg, .side .avatar, .side .logo { flex: none; }
+  .shell.mini .side .side-i { justify-content: flex-start; }
+}
+.foto-btn input { display: none !important; }

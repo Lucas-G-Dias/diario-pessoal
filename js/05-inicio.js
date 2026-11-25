@@ -79,5 +79,5 @@ VIEWS.inicio = () => {
   const m = mission();
   return `<header class="top"><div><span class="eyebrow">${longDate(today())}</span><h1>${greeting()}${nome ? ', <span class="grad-t">' + esc(nome.split(' ')[0]) + '</span>' : ''}</h1>
     <p class="sub muted">${m.complete ? 'Missão de hoje cumprida. Aproveite o descanso.' : `Faltam ${m.items.filter((i) => !i.opt && !i.ok).length} itens da missão de hoje · ${g.streak} dias de sequência`}</p></div></header>
-    ${liveBanner()}${kpis()}${heroCard(g)}${missionCard()}${lendoMini()}${metasMini()}${verseCard()}`;
+    ${ehAniversario() ? `<section class="card bday">${ic('cake', 30)}<div><span class="eyebrow">Hoje é o seu dia</span><strong class="lg">Feliz aniversário${nome ? ', ' + esc(nome.split(' ')[0]) : ''}!</strong><span class="tiny">${idade(cfg().birth)} anos. Que este novo ano seja de constância e graça.</span></div></section>` : ''}${liveBanner()}${kpis()}${heroCard(g)}${missionCard()}${lendoMini()}${metasMini()}${verseCard()}`;
 };

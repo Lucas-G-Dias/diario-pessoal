@@ -210,3 +210,38 @@ fieldset input + input { margin-top: 6px !important; }
 .cd.hoje { outline: 2px solid var(--ink); outline-offset: 1px; }
 .cal-leg { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
 .cal-leg span { display: flex; align-items: center; gap: 4px; } .cal-leg i { width: 12px; height: 12px; border-radius: 4px; background: var(--fill); }
+
+/* devocional: abas, plano em destaque, estante, livros */
+.tabs-seg { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: -4px -16px 16px; padding: 2px 16px 4px; }
+.tabs-seg::-webkit-scrollbar { display: none; }
+.tabs-seg button { flex: none; padding: 8px 15px; border-radius: 999px; background: var(--fill); font-size: .9rem; font-weight: 500; color: var(--muted); }
+.tabs-seg button.on { background: var(--ink); color: var(--bg); font-weight: 600; }
+.page[class*=pg-] > .tabs-seg, .page[class*=pg-] > .dev-body { grid-column: 1 / -1; }
+.dev-body { display: contents; }
+@media (min-width: 1024px) { .pg-devocional .dev-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; } .pg-devocional .dev-body > * { margin: 0; } .pg-devocional .dev-body > .sec, .pg-devocional .dev-body > p { grid-column: 1 / -1; } }
+.ano-cta { color: #fff; border: 0; background: radial-gradient(120% 120% at 100% 0, #8e7cf0, transparent 60%), linear-gradient(150deg, #1b1b4a, #3a38b8 55%, #5e5ce6); box-shadow: 0 16px 40px rgba(94, 92, 230, .32); }
+.ano-cta .eyebrow { color: rgba(255, 255, 255, .7); }
+.ano-cta h2 { margin: 6px 0 8px; font-size: 1.6rem; font-weight: 800; letter-spacing: -.04em; line-height: 1.1; }
+.ano-cta p { margin: 0 0 14px; color: rgba(255, 255, 255, .82); }
+.ano-cta .btn.ghost { background: rgba(255, 255, 255, .16); color: #fff; }
+.cta-nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+.cta-nums span { display: flex; flex-direction: column; font-size: .72rem; color: rgba(255, 255, 255, .75); }
+.cta-nums b { font-size: 1.25rem; color: #fff; font-weight: 750; letter-spacing: -.03em; }
+.bar.indigo i { background: #5e5ce6; }
+.big small { font-size: .4em; font-weight: 500; letter-spacing: 0; }
+.mbars.weeks { height: 96px; gap: 4px; } .mbars.weeks .mcol i { background: color-mix(in srgb, #5e5ce6 45%, transparent); } .mbars.weeks .mcol.today i { background: #5e5ce6; box-shadow: none; }
+.mbars.weeks .mcol span { font-size: .6rem; }
+.b-shelf { display: flex; align-items: flex-end; gap: 2px; height: 70px; margin: 6px 0 14px; padding-bottom: 4px; border-bottom: 4px solid var(--bg-2); }
+.b-shelf button { min-width: 3px; height: 100%; border-radius: 3px 3px 0 0; background: var(--fill); display: flex; align-items: flex-end; overflow: hidden; }
+.b-shelf i { display: block; width: 100%; background: #5e5ce6; }
+.bk-l { border-bottom: 1px solid var(--line); }
+.bk-l:last-child { border: 0; }
+.bk-l summary { display: flex; align-items: center; gap: 12px; padding: 12px 0; cursor: pointer; list-style: none; }
+.bk-l summary b { font-weight: 600; }
+.bk-l[open] { padding-bottom: 12px; }
+.mini-bar { width: 70px; height: 6px; border-radius: 6px; background: var(--fill); overflow: hidden; flex: none; }
+.mini-bar i { display: block; height: 100%; background: #5e5ce6; border-radius: 6px; }
+.lead-l { font-weight: 500; margin: 0 0 6px; }
+.bk-l dl, .dl-s { font-size: .92rem; margin: 6px 0 0; } .bk-l dt, .dl-s dt { font-weight: 600; margin-top: 8px; } .bk-l dd, .dl-s dd { margin: 2px 0 0; color: var(--muted); }
+.bk-l ul { margin: 2px 0; padding-left: 18px; }
+.ano-cta .row-gap { flex-wrap: wrap; gap: 10px; } .ano-cta .btn { white-space: nowrap; padding: 11px 16px; }

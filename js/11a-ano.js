@@ -33,13 +33,16 @@ function anoInfo() { const f = anoFeitos(); return { id: 'ano', nome: 'Bíblia e
 const versoDaSemana = (d = today()) => store.doc('anodom/' + addDays(d, -dow(d)))?.versiculo || store.doc('anodom/' + addDays(d, -dow(d) - 7))?.versiculo || '';
 
 /* resumo de um livro */
-function bookCard(b, titulo, aberto) {
+function livroDL(b) {
   const L = LIVROS[b]; if (!L) return '';
   const linha = (t, v) => `<dt>${t}</dt><dd>${esc(v)}</dd>`;
-  return `<details class="bcard" ${aberto ? 'open' : ''}><summary><span class="eyebrow">${esc(titulo || 'Sobre o livro')}</span><strong>${esc(ANO.books[b][0])}</strong><span class="tiny muted">${esc(L.o)}</span></summary>
-    <dl>${linha('Quem escreveu', L.a)}${linha('Quando', L.q)}${linha('Para quem', L.p)}${linha('Contexto', L.c)}${linha('Personagens', L.ps)}
+  return `<p class="lead-l">${esc(L.o)}</p><dl>${linha('Quem escreveu', L.a)}${linha('Quando', L.q)}${linha('Para quem', L.p)}${linha('Contexto', L.c)}${linha('Personagens', L.ps)}
     <dt>Grandes temas</dt><dd><ul>${L.t.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></dd>${linha('Onde Jesus aparece', L.j)}${linha('Texto-chave', L.k)}${linha('Dica de leitura', L.d)}</dl>
-    <p class="tiny muted">Resumo baseado em introduções de Bíblias de estudo. Panorama em vídeo: <a href="https://bibleproject.com/portugues/" target="_blank" rel="noopener">BibleProject em português</a>.</p></details>`;
+    <p class="tiny muted">Resumo baseado em introduções de Bíblias de estudo. Panorama em vídeo: <a href="https://bibleproject.com/portugues/" target="_blank" rel="noopener">BibleProject em português</a>.</p>`;
+}
+function bookCard(b, titulo, aberto) {
+  if (!LIVROS[b]) return '';
+  return `<details class="bcard" ${aberto ? 'open' : ''}><summary><span class="eyebrow">${esc(titulo || 'Sobre o livro')}</span><strong>${esc(ANO.books[b][0])}</strong></summary>${livroDL(b)}</details>`;
 }
 
 /* cartão do plano na página Devocional */

@@ -21,11 +21,12 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/11-devocional.js` | devocional SOAP, plano bíblico, grade de capítulos, pedidos de oração |
 | `js/10a-ano-dados.js` | dados do plano "Bíblia em um ano" (`ANO`: 312 dias, Salmos, livros) e resumos dos 66 livros (`LIVROS`) |
 | `js/11a-ano.js` | Bíblia em um ano: datas (âncoras, domingos livres), cartão do Devocional, dia guiado (completo/curto), domingo de revisão |
+| `js/11c-devo-abas.js` | abas do Devocional: Calendário, Progresso (capítulos, constância, estante), Livros, Diário e Oração |
 | `js/11b-ano-acoes.js` | ações do plano anual: concluir (cria `devos/` e marca `bible/main`), reorganizar, calendário, livros |
 | `js/12-escrita.js` | diário: humor, gratidão, pergunta do dia, contagem de palavras |
 | `js/13-metas.js` | metas (repetem por semana/mês/ano), `statsOf(período)`, relatório mês a mês, barras de 6 meses |
 | `js/14-conquistas.js` | nível, medalhas, XP por área, recordes, mapa de atividade |
-| `js/15-menu.js` | Menu (todas as áreas) e Ajustes |
+| `js/15-menu.js` | Menu (todas as áreas), Perfil (foto, nome, aniversário, frase; `avatarHTML()`) e Ajustes |
 | `js/16-boot.js` | `render()` com transição, navegação, folha de baixo, eventos, relógio de 1 s, início (sempre o último) |
 | `css/base.css` · `telas.css` · `areas.css` · `motion.css` | tokens e formulários · casca/Início/Hábitos/Metas · demais áreas · animações |
 | `icons/` · `docs/marca.html` | logo (`logo.svg`, PNGs do ícone) e guia da identidade visual |
@@ -37,7 +38,9 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 - Estilo Apple: fundo neutro, cartões de vidro (`.card` com `backdrop-filter`), cantos de 22px, Inter para tudo e Newsreader itálico só para versículos, citações e escrita.
 - Marca: gradiente brasa (`--grad`). Cada área tem uma cor fixa em `AREAS` (03-jogo.js) e nos tokens; não invente cores novas.
 - Celular: barra do topo + barra de abas flutuante. Computador (≥1024px): barra lateral de vidro (`sidebar()` em 16-boot.js) e páginas em grade de 2 colunas (`.pg-<página>`).
-- Tema: automático, claro ou escuro (`data-theme` no `<html>`, escolhido em Ajustes).
+- Tema: automático, claro ou escuro (`data-theme` no `<html>`), em Ajustes ou no botão de tema (barra lateral e topo).
+- Barra lateral recolhível (`S.sideMini`, salvo em `localStorage` `dp-side`): só ícones, abre ao passar o mouse.
+- Perfil: `config/main` (`name`, `birth`, `lema`) e foto reduzida para 320 px em `config/foto`.
 
 ## Padrões
 - Caminhos: `config/main`, `config/seen`, `books/`, `quotes/`, `reading/<data>`, `habits/`, `habitlog/<data>`, `workouts/`, `routines/`,

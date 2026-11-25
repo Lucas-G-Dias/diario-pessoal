@@ -11,7 +11,7 @@ const SOAP = [['passage', 'Escritura', 'Qual passagem você leu?'], ['obs', 'Obs
 
 function devoHoje() {
   const d = devos().find((x) => x.date === today());
-  if (!d) return `<button class="card cta" data-act="novoDevocional">${ic('pen', 22)}<div class="grow"><strong class="serif lg">Fazer o devocional de hoje</strong>
+  if (!d) return `<button class="card cta" data-act="novoDevocional">${ic('pen', 22)}<div class="grow"><strong class="serif lg">${store.doc('bible/main')?.plan === 'ano' && anoCfg() ? 'Devocional livre' : 'Fazer o devocional de hoje'}</strong>
     <span class="tiny muted">Escritura, observação, aplicação e oração · +${XP.devocional} XP</span></div>${ic('chev', 18)}</button>`;
   return `<section class="card devo-done"><div class="row-between"><span class="eyebrow green-t">${ic('check', 14)} Devocional de hoje</span><button class="icon-btn" data-act="editarDevocional" data-id="${d.id}" aria-label="Editar devocional de hoje">${ic('edit', 16)}</button></div>
     <strong class="serif lg">${esc(d.passage)}</strong>${d.app ? `<p class="devo-txt">${esc(d.app)}</p>` : ''}</section>`;
@@ -34,21 +34,33 @@ function oracaoCard() {
     ${resp.slice(0, 3).map((x) => `<div class="prayer done">${ic('heart', 16)}<span class="grow">${esc(x.text)}<span class="tiny muted">respondida em ${shortDate(x.answered)}</span></span></div>`).join('')}</section>`;
 }
 
+/* plano anual em destaque quando ainda não está ativo */
+function anoCTA() {
+  const tem = anoCfg();
+  return `<section class="card ano-cta"><span class="eyebrow">Plano em destaque</span><h2>Ler a Bíblia toda em um ano</h2>
+    <p>De segunda a sábado: Antigo e Novo Testamento intercalados, um Salmo e um Provérbio por dia. No domingo, revisão da semana, culto e oração.</p>
+    <div class="cta-nums"><span><b>1.189</b>capítulos</span><span><b>66</b>livros</span><span><b>312</b>dias</span><span><b>20–60</b>min/dia</span></div>
+    <div class="row-gap">${tem ? `<button class="btn" data-act="usarAno">${ic('play', 14)} Voltar ao plano anual</button>` : `<button class="btn" data-act="escolherAno">${ic('play', 14)} Começar o plano</button>`}<button class="btn ghost" data-act="trocarPlano">Outros planos</button></div></section>`;
+}
+
+const DEV_TABS = [['hoje', 'Hoje'], ['calendario', 'Calendário'], ['progresso', 'Progresso'], ['livros', 'Livros'], ['diario', 'Diário'], ['oracao', 'Oração']];
 VIEWS.devocional = () => {
-  const v = verseOfDay(), n = devoStreak(), hist = devos().filter((d) => d.date !== today()).slice(0, 8);
-  return `<header class="top"><h1 class="serif">Devocional</h1><span class="tag gold">${ic('flame', 13)} ${n} ${n === 1 ? 'dia' : 'dias'}</span></header>
-    <section class="card verse big-verse"><span class="eyebrow">Versículo do dia</span><blockquote class="serif">“${esc(v[1])}”</blockquote><span class="ref">${esc(v[0])}</span></section>
-    ${store.doc('bible/main')?.plan === 'ano' && anoCfg() ? anoCard() + devoHoje() : devoHoje() + planoCard()}${oracaoCard()}
-    ${hist.length ? `<h3 class="eyebrow sec">Devocionais anteriores</h3><section class="card list">${hist.map((d) => `<button class="w-row" data-act="editarDevocional" data-id="${d.id}">
-      <div class="w-date serif"><b>${Number(d.date.slice(8))}</b><span>${MESES[Number(d.date.slice(5, 7)) - 1]}</span></div><div class="grow"><strong>${esc(d.passage)}</strong><span class="tiny muted clamp1">${esc(d.app || d.obs || '')}</span></div>${ic('chev', 16)}</button>`).join('')}</section>` : ''}`;
+  const tab = S.devTab || 'hoje', n = devoStreak(), ano = store.doc('bible/main')?.plan === 'ano' && anoCfg();
+  const abas = `<div class="tabs-seg" role="tablist">${DEV_TABS.map(([k, t]) => `<button role="tab" aria-selected="${tab === k}" class="${tab === k ? 'on' : ''}" data-act="devTab" data-id="${k}">${t}</button>`).join('')}</div>`;
+  let corpo;
+  if (tab === 'hoje') { const v = verseOfDay(); corpo = `<section class="card verse big-verse"><span class="eyebrow">Versículo do dia</span><blockquote class="serif">“${esc(v[1])}”</blockquote><span class="ref">${esc(v[0])}</span></section>
+    ${ano ? anoCard() : anoCTA()}${devoHoje()}${ano ? '' : planoCard()}`; }
+  else corpo = (DEV_VIEWS[tab] || DEV_VIEWS.oracao)();
+  return `<header class="top"><h1 class="serif">Devocional</h1><span class="tag gold">${ic('flame', 13)} ${n} ${n === 1 ? 'dia' : 'dias'}</span></header>${abas}<div class="dev-body">${corpo}</div>`;
 };
+ACT.devTab = (k) => { S.devTab = k; S.lastPage = ''; render(); };
 
 function formDevo(d = {}) {
   const v = verseOfDay();
   return `<form data-form="devocional" data-id="${d.id || ''}">
     ${SOAP.map(([k, t, ph]) => k === 'passage' ? `<label>${t}<input name="${k}" required value="${esc(d[k] ?? v[0])}" placeholder="${ph}"></label>`
       : `<label>${t}<textarea name="${k}" rows="3" placeholder="${ph}">${esc(d[k] || '')}</textarea></label>`).join('')}
-    <div class="form-actions">${d.id ? `<button type="button" class="btn ghost danger" data-act="apagarDevocional" data-id="${d.id}">${ic('trash', 16)} Apagar</button>` : ''}<button class="btn">Salvar</button></div></form>`;
+    <div class="form-actions">${d.id ? `<button type="button" class="btn ghost danger" data-act="apagarDevocional" data-id="${d.id}">${ic('trash', 16)} Apagar</button>` : ''}<button class="btn">${d.id ? 'Salvar' : 'Concluir devocional'}</button></div></form>`;
 }
 
 /* Bíblia: grade de capítulos por livro (toque marca/desmarca, sem redesenhar a lista) */

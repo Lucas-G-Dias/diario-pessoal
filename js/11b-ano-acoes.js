@@ -82,9 +82,9 @@ Object.assign(ACT, {
     if (!confirm(`O dia ${p[0] + 1} passa a ser ${dow(today()) === 0 ? 'amanhã' : 'hoje'} e o plano termina em ${shortDate(fim)} de ${fim.slice(0, 4)}. As leituras feitas continuam marcadas.`)) return;
     const c = anoCfg(); store.merge('plano/ano', { ancoras: [...c.ancoras.filter((a) => a.idx < p[0]), { idx: p[0], data: nextReading(today()) }] }); toast('Plano reorganizado');
   },
-  anoCalendario: () => { S.anoMes = S.anoMes || today().slice(0, 7); openModal('Calendário do plano', anoCalHTML()); },
-  anoMes: (n) => { S.anoMes = shiftMonth(S.anoMes || today().slice(0, 7), Number(n)); openModal('Calendário do plano', anoCalHTML()); },
-  anoLivros: () => openModal('Livros da Bíblia', anoLivrosHTML()),
+  anoCalendario: () => { S.devTab = 'calendario'; S.page = 'devocional'; S.lastPage = ''; render(); },
+  anoMes: (n) => { S.anoMes = shiftMonth(S.anoMes || today().slice(0, 7), Number(n)); if ($('#modal').open) openModal('Calendário do plano', anoCalHTML()); else render(); },
+  anoLivros: () => { closeModal(); S.devTab = 'livros'; S.page = 'devocional'; S.lastPage = ''; render(); },
   anoLivro: (b) => openModal(ANO.books[b][0], bookCard(b, ANO.books[b][2] === 'NT' ? 'Novo Testamento' : 'Antigo Testamento', true) + `<button class="btn ghost wide" data-act="anoLivros">‹ Todos os livros</button>`),
   escolherAno: () => openModal('Bíblia em um ano', formAno()),
 });
