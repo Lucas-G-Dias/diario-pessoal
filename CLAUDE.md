@@ -1,7 +1,7 @@
 # Ritmo: mapa do projeto
 
 **Ritmo** (antes "Diário Pessoal"): PWA pessoal com hábitos, treino (musculação), leitura, devocional, escrita, metas e conquistas, tudo gamificado (XP, nível,
-sequência com escudos, 60 medalhas em 4 níveis) e com lembretes por push. HTML + JS puro, sem build. Publicado pelo GitHub Pages.
+sequência com escudos, 64 medalhas em 4 níveis) e com lembretes por push. HTML + JS puro, sem build. Publicado pelo GitHub Pages.
 Dados no Supabase (projeto `kvywtrdukwevesgbjghd`, São Paulo; login por e-mail e senha, tabela `docs` por usuário).
 Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em português do Brasil.
 
@@ -19,6 +19,9 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/09-leitura.js` | livros, cronômetro (`session/leitura`), ritmo e previsão, citações, estante |
 | `js/10-biblia.js` | livros e capítulos da Bíblia, planos de leitura, versículos do dia |
 | `js/11-devocional.js` | devocional SOAP, plano bíblico, grade de capítulos, pedidos de oração |
+| `js/10a-ano-dados.js` | dados do plano "Bíblia em um ano" (`ANO`: 312 dias, Salmos, livros) e resumos dos 66 livros (`LIVROS`) |
+| `js/11a-ano.js` | Bíblia em um ano: datas (âncoras, domingos livres), cartão do Devocional, dia guiado (completo/curto), domingo de revisão |
+| `js/11b-ano-acoes.js` | ações do plano anual: concluir (cria `devos/` e marca `bible/main`), reorganizar, calendário, livros |
 | `js/12-escrita.js` | diário: humor, gratidão, pergunta do dia, contagem de palavras |
 | `js/13-metas.js` | metas (repetem por semana/mês/ano), `statsOf(período)`, relatório mês a mês, barras de 6 meses |
 | `js/14-conquistas.js` | nível, medalhas, XP por área, recordes, mapa de atividade |
@@ -38,7 +41,9 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 
 ## Padrões
 - Caminhos: `config/main`, `config/seen`, `books/`, `quotes/`, `reading/<data>`, `habits/`, `habitlog/<data>`, `workouts/`, `routines/`,
-  `exercises/`, `session/treino`, `session/leitura`, `goals/`, `devos/`, `bible/main`, `prayers/`, `journal/`.
+  `exercises/`, `session/treino`, `session/leitura`, `goals/`, `devos/`, `bible/main`, `prayers/`, `journal/`,
+  `plano/ano`, `anolog/<dia>`, `anodom/<data>`, `session/ano`.
+- Plano anual: `bible/main.plan === 'ano'` ativa o cartão guiado; concluir um dia gera `devos/ano-<i>` (conta na missão e no XP).
 - Gravar sempre por `store.set/merge/del`. Campo digitado no meio de uma tela: `store.set(path, data, true)` (não redesenha).
 - Hábito com contagem: `target > 1`, valor no `habitlog` é número; use sempre `hDone(h, log)` / `hVal(h, log)`.
 - Hábito pausado: `paused: true` + `pauses: [{from, to}]`; não conta nos dias pausados (`habitDueOn`).

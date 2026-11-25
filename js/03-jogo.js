@@ -59,13 +59,13 @@ function totals() {
   const ws = workouts(), finished = books().filter((b) => b.status === 'lido').length, qs = quotes().length;
   const prs = ws.reduce((a, w) => a + (w.prs || []).length, 0), volume = ws.reduce((a, w) => a + (w.volume || 0), 0);
   const dv = devos().length, caps = Object.keys(bibleRead()).length, resp = prayers().filter((x) => x.answered).length;
-  const js = journal(), palavras = js.reduce((a, j) => a + (j.words || 0), 0), metas = goalsHit();
+  const anoDias = store.col('anolog').filter((x) => x.c).length, js = journal(), palavras = js.reduce((a, j) => a + (j.words || 0), 0), metas = goalsHit();
   const xp = {
     habitos: checks * XP.habito, leitura: pages * XP.pagina + finished * XP.livro + qs * XP.citacao, treino: ws.length * XP.treino + prs * XP.pr,
     devocional: dv * XP.devocional + caps * XP.capitulo + resp * XP.oracao, escrita: js.reduce((a, j) => a + XP.diario + Math.min(10, Math.floor((j.words || 0) / 50)), 0),
     metas: metas * XP.meta, bonus: full * XP.diaCompleto,
   };
-  return { pages, maxPages, checks, full, finished, qs, workouts: ws.length, prs, volume, dv, caps, resp, entradas: js.length, palavras, metas, xpArea: xp, xp: Object.values(xp).reduce((a, b) => a + b, 0) };
+  return { pages, maxPages, checks, full, finished, qs, workouts: ws.length, prs, volume, dv, caps, resp, entradas: js.length, palavras, metas, anoDias, xpArea: xp, xp: Object.values(xp).reduce((a, b) => a + b, 0) };
 }
 
 /* nível n exige 75·n·(n−1) XP acumulado: 0, 150, 450, 900, 1500… */
@@ -93,6 +93,7 @@ const CONQ = [
   ['diario', 'Escritor', 'pen', 'entradas no diário', (t) => t.entradas, [1, 10, 50, 200]],
   ['palavras', 'Pena', 'pen', 'palavras escritas', (t) => t.palavras, [1000, 10000, 50000, 200000]],
   ['metas', 'Determinação', 'target', 'metas batidas', (t) => t.metas, [1, 5, 20, 50]],
+  ['ano', 'Um ano na Palavra', 'cross', 'dias do plano anual', (t) => t.anoDias, [6, 52, 156, 312]],
 ].map(([id, nome, icon, unit, fn, tiers]) => ({ id, nome, icon, unit, fn, tiers }));
 
 function conquistas(t) {

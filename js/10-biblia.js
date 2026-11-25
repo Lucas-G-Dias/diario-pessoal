@@ -24,6 +24,7 @@ const PLANOS = {
 };
 const planCaps = (id) => (PLANOS[id] || PLANOS.nt)[1].flatMap(([ab, , n]) => Array.from({ length: n }, (_, i) => capKey(ab, i + 1)));
 function planInfo() {
+  if (store.doc('bible/main')?.plan === 'ano' && anoCfg()) return anoInfo();
   const id = store.doc('bible/main')?.plan || 'nt', caps = planCaps(id), read = bibleRead(), lidos = caps.filter((k) => read[k]).length;
   return { id, nome: PLANOS[id][0], total: caps.length, lidos, next: caps.find((k) => !read[k]) };
 }

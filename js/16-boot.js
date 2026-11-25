@@ -1,6 +1,6 @@
 /* ============ casca: login, navegação, transições, modal, eventos, relógio, início ============ */
 const NAV = [['inicio', 'Início', 'home'], ['habitos', 'Hábitos', 'habit'], null, ['treino', 'Treino', 'gym'], ['menu', 'Menu', 'grid']];
-const NAV_DE = { sessao: 'treino', leitura: 'menu', devocional: 'menu', escrita: 'menu', metas: 'menu', conquistas: 'menu', ajustes: 'menu' };
+const NAV_DE = { sessao: 'treino', ano: 'menu', leitura: 'menu', devocional: 'menu', escrita: 'menu', metas: 'menu', conquistas: 'menu', ajustes: 'menu' };
 const SUB = ['leitura', 'devocional', 'escrita', 'metas', 'conquistas', 'ajustes'];
 
 /* barra lateral de vidro (computador) */
@@ -27,9 +27,9 @@ function render() {
     : `<button class="nav-plus" data-act="rapido" aria-label="Registrar algo">${ic('plus', 26)}</button>`).join('');
   app.innerHTML = `${!S.online ? '<div class="banner">Sem internet. Os registros ficam guardados e sobem quando voltar.</div>' : ''}
     ${LOCAL && !S.hideLocal ? '<div class="banner">Modo local (servidor não conectado). <button class="link" data-act="ocultarAviso">Ok</button></div>' : ''}
-    <div class="shell">${sidebar(S.page)}<div class="col">
+    <div class="shell">${sidebar(S.page === 'ano' ? 'devocional' : S.page)}<div class="col">
     <header class="appbar"><div class="brand">${LOGO(28)}<span>${APP}</span></div><button class="lvl-chip" data-page="conquistas" aria-label="Nível ${g.level.n}, ver conquistas">${ic('flame', 14)}<b>${g.streak}</b><span class="avatar sm">${g.level.n}</span></button></header>
-    <main class="page pg-${S.page} ${novo ? 'enter' : ''}">${SUB.includes(S.page) ? `<button class="back" data-page="menu">${ic('chev', 16)} Menu</button>` : ''}${view()}</main></div></div>
+    <main class="page pg-${S.page} ${novo ? 'enter' : ''}">${S.page === 'ano' ? `<button class="back" data-page="devocional">${ic('chev', 16)} Devocional</button>` : SUB.includes(S.page) ? `<button class="back" data-page="menu">${ic('chev', 16)} Menu</button>` : ''}${view()}</main></div></div>
     <nav class="nav" aria-label="Abas">${nav}</nav>`;
   scrollTo(0, y);
 }

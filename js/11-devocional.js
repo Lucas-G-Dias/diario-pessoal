@@ -38,7 +38,7 @@ VIEWS.devocional = () => {
   const v = verseOfDay(), n = devoStreak(), hist = devos().filter((d) => d.date !== today()).slice(0, 8);
   return `<header class="top"><h1 class="serif">Devocional</h1><span class="tag gold">${ic('flame', 13)} ${n} ${n === 1 ? 'dia' : 'dias'}</span></header>
     <section class="card verse big-verse"><span class="eyebrow">Versículo do dia</span><blockquote class="serif">“${esc(v[1])}”</blockquote><span class="ref">${esc(v[0])}</span></section>
-    ${devoHoje()}${planoCard()}${oracaoCard()}
+    ${store.doc('bible/main')?.plan === 'ano' && anoCfg() ? anoCard() + devoHoje() : devoHoje() + planoCard()}${oracaoCard()}
     ${hist.length ? `<h3 class="eyebrow sec">Devocionais anteriores</h3><section class="card list">${hist.map((d) => `<button class="w-row" data-act="editarDevocional" data-id="${d.id}">
       <div class="w-date serif"><b>${Number(d.date.slice(8))}</b><span>${MESES[Number(d.date.slice(5, 7)) - 1]}</span></div><div class="grow"><strong>${esc(d.passage)}</strong><span class="tiny muted clamp1">${esc(d.app || d.obs || '')}</span></div>${ic('chev', 16)}</button>`).join('')}</section>` : ''}`;
 };
@@ -70,9 +70,11 @@ Object.assign(ACT, {
     store.set('bible/main', { ...b, read }, true); el.classList.toggle('on', !!read[k]); el.setAttribute('aria-pressed', !!read[k]);
   },
   abrirBiblia: () => { openModal('Bíblia', bibliaHTML()); $('#modal').addEventListener('close', () => render(), { once: true }); },
-  trocarPlano: () => openModal('Plano de leitura', `<div class="quick-grid one">${Object.entries(PLANOS).map(([id, [nome]]) => { const caps = planCaps(id), l = caps.filter((k) => bibleRead()[k]).length;
+  trocarPlano: () => openModal('Plano de leitura', `<div class="quick-grid one"><button class="qbtn row destaque" data-act="escolherAno"><span class="grow"><b>Bíblia em um ano</b><span class="tiny muted">Plano guiado · 312 dias + domingos de revisão</span></span>${anoCfg() ? `<span class="tiny muted">${anoFeitos()}/${ANO_N} dias</span>` : ic('chev', 16)}</button>
+    <span class="eyebrow sec">Ou leia no seu ritmo, capítulo por capítulo</span>${Object.entries(PLANOS).map(([id, [nome]]) => { const caps = planCaps(id), l = caps.filter((k) => bibleRead()[k]).length;
     return `<button class="qbtn row" data-act="escolherPlano" data-id="${id}"><b>${nome}</b><span class="tiny muted">${l}/${caps.length} capítulos</span></button>`; }).join('')}</div>`),
   escolherPlano: (id) => { store.merge('bible/main', { plan: id }); closeModal(); },
+  usarAno: () => { store.merge('bible/main', { plan: 'ano' }); closeModal(); },
   oracaoRespondida: (id) => { const x = store.doc('prayers/' + id); store.set('prayers/' + id, { ...x, answered: today() }); confetti(60); toast(`Oração respondida · +${XP.oracao} XP`); },
   apagarOracao: (id) => { if (confirm('Apagar este pedido?')) store.del('prayers/' + id); },
 });
