@@ -14,7 +14,7 @@ function sidebar(ativo) {
       <button class="side-tog" data-act="sideTog" aria-label="${S.sideMini ? 'Fixar a barra lateral aberta' : 'Recolher a barra lateral'}" title="${S.sideMini ? 'Fixar aberta' : 'Recolher'}">${ic('side', 18)}</button></div>
     <button class="me" data-act="perfil" aria-label="Seu perfil">${avatarHTML(40, `<i>${g.level.n}</i>`)}
       <span class="grow lbl"><b>${esc(nome.split(' ')[0])}</b><span class="tiny muted">Nível ${g.level.n} · ${g.level.title}</span>${progressBar(g.level.pct, 'gold')}</span></button>
-    ${SIDE.map(([t, items]) => `<span class="side-t lbl">${t}</span>${items.map(([pg, n, i]) => `<button class="side-i ${ativo === pg ? 'on' : ''}" data-page="${pg}" ${ativo === pg ? 'aria-current="page"' : ''} title="${n}">${ic(i, 18)}<span class="lbl">${n}</span>${pg === 'inicio' && g.streak ? `<em class="lbl">${ic('flame', 12)}${g.streak}</em>` : ''}</button>`).join('')}`).join('')}
+    ${SIDE.map(([t, items]) => [t, items.filter(([pg]) => !['treino', 'leitura', 'devocional', 'escrita'].includes(pg) || areaOn(pg))]).filter(([, it]) => it.length).map(([t, items]) => `<span class="side-t lbl">${t}</span>${items.map(([pg, n, i]) => `<button class="side-i ${ativo === pg ? 'on' : ''}" data-page="${pg}" ${ativo === pg ? 'aria-current="page"' : ''} title="${n}">${ic(i, 18)}<span class="lbl">${n}</span>${pg === 'inicio' && g.streak ? `<em class="lbl">${ic('flame', 12)}${g.streak}</em>` : ''}</button>`).join('')}`).join('')}
     <button class="side-note" data-page="devocional"><span class="eyebrow">Versículo do dia</span><span class="vtxt">“${esc(v[1])}”</span><b>${esc(v[0])}</b></button>
     <div class="side-foot"><button class="side-i ${ativo === 'ajustes' ? 'on' : ''}" data-page="ajustes" title="Ajustes">${ic('gear', 18)}<span class="lbl">Ajustes</span></button>
       <button class="side-i tema" data-act="temaCiclo" title="Tema: ${temaNome}" aria-label="Tema: ${temaNome}. Trocar">${ic(temaIc, 18)}<span class="lbl">${temaNome}</span></button></div></aside>`;
@@ -26,7 +26,10 @@ function render() {
   if (S.auth === 'out') { app.innerHTML = loginView(); return; }
   const view = VIEWS[S.page] || VIEWS.inicio, novo = S.page !== S.lastPage, y = novo ? 0 : scrollY, ativo = NAV_DE[S.page] || S.page, g = game();
   S.lastPage = S.page;
-  const nav = NAV.map((n) => n ? `<button class="nav-i ${ativo === n[0] ? 'on' : ''}" data-page="${n[0]}" ${ativo === n[0] ? 'aria-current="page"' : ''}><span class="nav-ic">${ic(n[2])}</span><span class="nav-l">${n[1]}</span></button>`
+  const tr = areaOn('treino') ? NAV[3] : [['leitura', 'Leitura', 'book'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen']].find(([k]) => areaOn(k)) || ['metas', 'Metas', 'target'];
+  document.documentElement.dataset.accent = cfg().accent; document.documentElement.dataset.fs = cfg().fonte;
+  const navAtivo = tr[0] === S.page ? S.page : ativo;
+  const nav = [NAV[0], NAV[1], NAV[2], tr, NAV[4]].map((n) => n ? `<button class="nav-i ${navAtivo === n[0] ? 'on' : ''}" data-page="${n[0]}" ${navAtivo === n[0] ? 'aria-current="page"' : ''}><span class="nav-ic">${ic(n[2])}</span><span class="nav-l">${n[1]}</span></button>`
     : `<button class="nav-plus" data-act="rapido" aria-label="Registrar algo">${ic('plus', 26)}</button>`).join('');
   app.innerHTML = `${!S.online ? '<div class="banner">Sem internet. Os registros ficam guardados e sobem quando voltar.</div>' : ''}
     ${LOCAL && !S.hideLocal ? '<div class="banner">Modo local (servidor não conectado). <button class="link" data-act="ocultarAviso">Ok</button></div>' : ''}

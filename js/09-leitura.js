@@ -1,9 +1,31 @@
 /* ============ Leitura: livros, cronômetro de leitura, velocidade, previsão, citações, estante ============ */
 const STATUS = { lendo: 'Lendo', quero: 'Quero ler', pausado: 'Pausados', lido: 'Lidos' };
 
+/* capa: a foto que a pessoa subiu (covers/<id>) ou uma capa desenhada com a cor escolhida */
+const capa = (id) => (id ? store.doc('covers/' + id)?.data : '') || '';
 function bookCover(b, size = '') {
-  const c = b.color || SPINES[0];
+  const c = b.color || SPINES[0], img = capa(b.id);
+  if (img) return `<div class="cover img ${size}" style="background-image:url(${img})" role="img" aria-label="Capa de ${esc(b.title)}"></div>`;
   return `<div class="cover ${size} ${lightSpine(c) ? 'light' : ''}" style="--c:${c}"><span class="cover-t">${esc(b.title)}</span><span class="cover-a">${esc((b.author || '').split(' ').pop())}</span></div>`;
+}
+/* recorta e reduz a foto da capa para 300×450 (proporção de livro) */
+function reduzCapa(file) {
+  return new Promise((ok, erro) => { const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => { const W = 300, H = 450, cv = document.createElement('canvas'), x = cv.getContext('2d'); cv.width = W; cv.height = H;
+      const k = Math.max(W / img.width, H / img.height), w = img.width * k, h = img.height * k; x.drawImage(img, (W - w) / 2, (H - h) / 2, w, h);
+      URL.revokeObjectURL(url); ok(cv.toDataURL('image/jpeg', 0.82)); };
+    img.onerror = erro; img.src = url; });
+}
+
+/* estante: cada livro cadastrado fica numa prateleira, por situação; tocar abre a ficha (e dá para escolher o que ler) */
+function minhaEstante() {
+  const bs = books(), ordem = ['lendo', 'quero', 'pausado', 'lido'];
+  const prat = (st) => { const list = bs.filter((b) => b.status === st); if (!list.length && st !== 'quero') return '';
+    return `<div class="prat"><div class="row-between"><span class="eyebrow">${STATUS[st]} · ${list.length}</span></div><div class="prat-row">${list.map((b, i) => { const pct = b.pages ? (b.page || 0) / b.pages : 0;
+      return `<button class="livro" style="--i:${i}" data-act="verLivro" data-id="${b.id}" aria-label="${esc(b.title)}">${bookCover(b, 'shelf')}${st === 'lendo' || st === 'pausado' ? `<span class="livro-p"><i style="width:${pct * 100}%"></i></span>` : ''}<span class="livro-t">${esc(b.title)}</span></button>`; }).join('')}
+      ${st === 'quero' || st === 'lendo' ? `<button class="livro add" data-act="novoLivro" data-id="${st}" aria-label="Adicionar livro em ${STATUS[st]}"><span class="cover shelf">${ic('plus', 26)}</span><span class="livro-t">Adicionar</span></button>` : ''}</div><div class="prat-tabua"></div></div>`; };
+  return `<section class="card estante-c"><div class="row-between"><span class="eyebrow">Minha estante · ${bs.length} ${bs.length === 1 ? 'livro' : 'livros'}</span><button class="btn-sm" data-act="novoLivro">${ic('plus', 14)} Livro</button></div>
+    ${bs.length ? ordem.map(prat).join('') : `<div class="empty"><p class="muted">Cadastre seus livros, com a capa se quiser. Cada um entra aqui na estante, e é só tocar para escolher o que ler.</p></div>${prat('quero')}`}</section>`;
 }
 
 /* páginas por dia (média dos dias com leitura nos últimos 14) e velocidade (páginas por hora) */
@@ -35,24 +57,15 @@ function estante() {
     <em class="tiny muted foot">${dia < 14 || !lidos.length ? 'A previsão aparece com o primeiro livro terminado.' : prev >= c.goalBooks ? `No ritmo atual, ~${prev} livros no ano. Meta batida.` : `No ritmo atual, ~${prev} livros no ano. Faltam ${c.goalBooks - prev} para a meta.`}</em></section>`;
 }
 
-function bookRow(b) {
-  const pct = b.pages ? (b.page || 0) / b.pages : 0, em = b.status === 'lendo' || b.status === 'pausado';
-  return `<button class="book-row" data-act="verLivro" data-id="${b.id}">${bookCover(b, 'sm')}<div class="grow"><strong class="serif">${esc(b.title)}</strong><em class="muted tiny">${esc(b.author)}</em>
-    ${em ? progressBar(pct) + `<span class="tiny muted">pág. ${fmt(b.page || 0)} de ${fmt(b.pages)}</span>` : ''}
-    ${b.status === 'lido' ? `<span class="tiny muted">terminado em ${shortDate(b.finished)}${b.rating ? ' · ' + '★'.repeat(b.rating) : ''}</span>` : ''}</div>${ic('chev', 16)}</button>`;
-}
-
 VIEWS.leitura = () => {
   const bs = books(), hist = lastDays(14).map((d) => ({ d, p: readingOn(d) })), max = Math.max(cfg().goalPages, ...hist.map((h) => h.p)), pace = readingPace(), sess = store.doc('session/leitura');
-  const grupo = (st) => { const list = bs.filter((b) => b.status === st); return list.length ? `<h3 class="eyebrow sec">${STATUS[st]} · ${list.length}</h3><div class="book-list">${list.map(bookRow).join('')}</div>` : ''; };
   const qs = quotes();
-  return `<header class="top"><h1 class="serif">Leitura</h1><button class="btn-sm" data-act="novoLivro">${ic('plus', 16)} Livro</button></header>
+  return `<header class="top"><h1 class="serif">Leitura</h1><button class="btn-sm" data-act="novoLivro">${ic('plus', 16)} Livro</button></header>${lendoMini()}
     ${sess ? `<button class="live big-live" data-act="pararLeitura">${ic('book', 20)}<span>Lendo agora</span><b class="tick" data-since="${sess.start}">${mmss(Date.now() - sess.start)}</b>${ic('stop', 16)}</button>` : ''}
     <section class="card"><div class="stats three"><div><b class="serif">${readingOn(today())}</b><span>páginas hoje</span></div><div><b class="serif">${fmt(Math.round(pace.porDia))}</b><span>pág./dia (14 d)</span></div><div><b class="serif">${pace.porHora ? fmt(Math.round(pace.porHora)) : '—'}</b><span>pág./hora</span></div></div>
       <div class="bars">${hist.map((h, i) => `<div class="bcol ${h.d === today() ? 'today' : ''}" title="${shortDate(h.d)}: ${h.p} pág."><i style="height:${(h.p / max) * 100}%;--i:${i}"></i><span>${DIAS_C[dow(h.d)]}</span></div>`).join('')}</div>
       <span class="tiny muted">Meta diária: ${cfg().goalPages} páginas</span></section>
-    ${bs.length ? Object.keys(STATUS).map(grupo).join('') : '<div class="card empty"><em class="serif lg">Sua estante está vazia.</em><p class="muted">Cadastre o livro que está lendo e registre as páginas todo dia.</p></div>'}
-    ${estante()}
+    ${minhaEstante()}${bs.length ? estante() : ''}
     ${qs.length ? `<h3 class="eyebrow sec">Citações · ${qs.length}</h3>${qs.slice(0, 6).map(quoteCard).join('')}` : ''}`;
 };
 
@@ -66,19 +79,23 @@ ACT.verLivro = (id) => {
   openModal(b.title, `<div class="book-head">${bookCover(b, 'md')}<div class="grow"><em class="muted">${esc(b.author)}</em>
     <div class="big serif">${Math.round(pct * 100)}%</div>${progressBar(pct)}<span class="tiny muted">pág. ${fmt(b.page || 0)} de ${fmt(b.pages)}${b.status === 'lendo' ? ' · ' + etaTxt(b) : ''}</span>
     ${b.started ? `<span class="tiny muted">começou em ${shortDate(b.started)}${min ? ` · ${Math.round(min / 60 * 10) / 10} h lendo` : ''}</span>` : ''}</div></div>
-    <div class="form-actions start">${b.status === 'lendo' ? `<button class="btn" data-act="iniciarLeitura" data-id="${id}">${ic('play', 14)} Ler agora</button><button class="btn ghost" data-act="registrarLeitura" data-id="${id}">Registrar páginas</button>` : ''}
+    <div class="form-actions start">${b.status === 'lendo' ? `<button class="btn" data-act="iniciarLeitura" data-id="${id}">${ic('play', 14)} Ler agora</button><button class="btn ghost" data-act="registrarLeitura" data-id="${id}">Registrar páginas</button><button class="btn ghost" data-act="statusLivro" data-id="${id}:pausado">Pausar</button>`
+        : `<button class="btn" data-act="statusLivro" data-id="${id}:lendo">${ic('book', 14)} ${b.status === 'lido' ? 'Ler de novo' : b.status === 'pausado' ? 'Voltar a ler' : 'Começar a ler'}</button>`}
       <button class="btn ghost" data-act="novaCitacao" data-id="${id}">${ic('quote', 14)} Citação</button><button class="btn ghost" data-act="editarLivro" data-id="${id}">Editar</button></div>
     ${qs.length ? `<span class="eyebrow">Citações</span>${qs.map(quoteCard).join('')}` : ''}`);
 };
 
 function formLivro(b = {}) {
+  S.capaTemp = null;
   const st = { lendo: 'Lendo', quero: 'Quero ler', pausado: 'Pausado', lido: 'Lido' };
   const cores = SPINES.map((c, i) => `<label class="swatch" style="--c:${c}"><input type="radio" name="color" value="${c}" ${(b.color || SPINES[books().length % SPINES.length]) === c ? 'checked' : ''} aria-label="Cor ${i + 1}"></label>`).join('');
   return `<form data-form="livro" data-id="${b.id || ''}">
     <label>Título<input name="title" required value="${esc(b.title)}" autocomplete="off"></label><label>Autor<input name="author" value="${esc(b.author)}" autocomplete="off"></label>
     <div class="grid2"><label>Total de páginas<input name="pages" type="number" min="1" inputmode="numeric" required value="${b.pages || ''}"></label>
-    <label>Situação<select name="status">${Object.entries(st).map(([k, v]) => `<option value="${k}" ${(b.status || 'lendo') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label></div>
-    <fieldset><legend>Cor da lombada</legend><div class="swatches">${cores}</div></fieldset>
+    <label>Situação<select name="status">${Object.entries(st).map(([k, v]) => `<option value="${k}" ${(b.status || S.novoStatus || 'lendo') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label></div>
+    <div class="capa-up"><div class="capa-prev">${bookCover({ ...b, title: b.title || 'Seu livro' }, 'md')}</div><div class="grow"><b>Capa</b><span class="tiny muted">Tire uma foto da capa ou escolha uma imagem. Sem foto, o app desenha uma capa com a cor abaixo.</span>
+      <label class="foto-btn">${ic('camera', 16)} ${capa(b.id) ? 'Trocar capa' : 'Pôr capa'}<input type="file" accept="image/*" data-chg="capaLivro"></label>${capa(b.id) ? `<button type="button" class="link muted-l" data-act="tirarCapa" data-id="${b.id}">Remover capa</button>` : ''}</div></div>
+    <fieldset><legend>Cor da capa e da lombada</legend><div class="swatches">${cores}</div></fieldset>
     ${b.id && b.status === 'lido' ? `<label>Nota (1 a 5)<input name="rating" type="number" min="1" max="5" value="${b.rating || ''}"></label>` : ''}
     <div class="form-actions">${b.id ? `<button type="button" class="btn ghost danger" data-act="apagarLivro" data-id="${b.id}">${ic('trash', 16)} Apagar</button>` : ''}<button class="btn">Salvar</button></div></form>`;
 }
@@ -90,9 +107,13 @@ function formLeitura(b, min) {
 }
 
 Object.assign(ACT, {
-  novoLivro: () => openModal('Novo livro', formLivro()),
+  novoLivro: (st) => { S.novoStatus = STATUS[st] ? st : ''; openModal('Novo livro', formLivro()); },
+  statusLivro: (k) => { const [id, st] = k.split(':'), b = store.doc('books/' + id);
+    store.set('books/' + id, { ...b, status: st, updated: Date.now(), ...(st === 'lendo' && (!b.started || b.status === 'lido') ? { started: today(), ...(b.status === 'lido' ? { page: 0, finished: '' } : {}) } : {}) });
+    closeModal(); toast(st === 'lendo' ? `Agora você está lendo ${b.title}` : 'Livro pausado'); },
+  tirarCapa: (id) => { store.del('covers/' + id); openModal('Editar livro', formLivro({ id, ...store.doc('books/' + id) })); },
   editarLivro: (id) => openModal('Editar livro', formLivro({ id, ...store.doc('books/' + id) })),
-  apagarLivro: (id) => { if (confirm('Apagar este livro? As páginas já registradas continuam contando.')) { store.del('books/' + id); closeModal(); } },
+  apagarLivro: (id) => { if (confirm('Apagar este livro? As páginas já registradas continuam contando.')) { store.del('covers/' + id); store.del('books/' + id); closeModal(); } },
   registrarLeitura: (id) => { const b = store.doc('books/' + id); if (b) openModal('Registrar leitura', formLeitura({ id, ...b })); },
   somarPaginas: (n, el) => { const f = el.form, b = store.doc('books/' + f.dataset.id); f.page.value = Math.min(b.pages, (Number(f.page.value) || b.page || 0) + Number(n)); },
   iniciarLeitura: (id) => { closeModal(); store.set('session/leitura', { bookId: id, start: Date.now() }); haptic(20); toast('Cronômetro ligado. Boa leitura!'); },
@@ -110,6 +131,7 @@ Object.assign(FORMS, {
     if (v.rating) b.rating = clamp(Number(v.rating), 1, 5);
     if (b.status === 'lido' && !b.finished) { b.finished = today(); b.page = b.pages; }
     if (b.status === 'lendo' && !b.started) b.started = today();
+    if (S.capaTemp) { store.set('covers/' + id, { data: S.capaTemp }, true); S.capaTemp = null; }
     store.set('books/' + id, b); closeModal();
   },
   leitura: (v, f) => {
@@ -126,3 +148,9 @@ Object.assign(FORMS, {
   },
   citacao: (v, f) => { store.set('quotes/' + uid(), { bookId: f.dataset.id, text: v.text.trim(), page: Number(v.page) || 0, date: today() }); closeModal(); toast(`Citação guardada · +${XP.citacao} XP`); },
 });
+
+CHG.capaLivro = async (el) => {
+  const f = el.files && el.files[0]; if (!f) return;
+  try { S.capaTemp = await reduzCapa(f); const prev = el.form.querySelector('.capa-prev'); if (prev) prev.innerHTML = `<div class="cover img md" style="background-image:url(${S.capaTemp})"></div>`; toast('Capa pronta. Toque em Salvar.'); }
+  catch { toast('Não deu para abrir essa imagem'); }
+};

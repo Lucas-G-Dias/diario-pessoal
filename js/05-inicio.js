@@ -67,7 +67,7 @@ function kpis() {
   const serie = { habitos: dias.map(habDia), leitura: dias.map(readingOn), treino: dias.map((d) => workouts().filter((w) => w.date === d).length), devocional: dias.map((d) => (devDias.has(d) ? 1 : 0)) };
   const soma = (a) => a.reduce((x, y) => x + y, 0), media = (a) => soma(a) / a.length;
   const cards = [['habitos', 'Hábitos', (a) => Math.round(media(a)), '%', '/habitos'], ['leitura', 'Páginas', soma, '', '/leitura'],
-    ['treino', 'Treinos', soma, '', '/treino'], ['devocional', 'Devocional', soma, ' dias', '/devocional']];
+    ['treino', 'Treinos', soma, '', '/treino'], ['devocional', 'Devocional', soma, ' dias', '/devocional']].filter(([k]) => k === 'habitos' || areaOn(k));
   return `<div class="kpis">${cards.map(([k, nome, fn, suf, pg], i) => { const v = fn(serie[k].slice(7)), a = fn(serie[k].slice(0, 7)), d = v - a, cor = AREAS[k][2];
     return `<button class="card kpi" style="--hc:${cor};--i:${i}" data-page="${pg.slice(1)}"><span class="kpi-h"><span class="kpi-ic">${ic(AREAS[k][1], 15)}</span>${nome}</span>
       <b class="kpi-v">${fmt(v)}<small>${suf}</small></b><span class="kpi-d ${d > 0 ? 'up' : d < 0 ? 'down' : ''}">${d ? (d > 0 ? '↑ ' : '↓ ') + fmt(Math.abs(d)) : '='} <span class="muted">vs. 7 dias antes</span></span>
@@ -75,9 +75,9 @@ function kpis() {
 }
 
 VIEWS.inicio = () => {
-  const g = game(), nome = cfg().name;
+  const g = game(), nome = cfg().name, ini = cfg().inicio;
   const m = mission();
   return `<header class="top"><div><span class="eyebrow">${longDate(today())}</span><h1>${greeting()}${nome ? ', <span class="grad-t">' + esc(nome.split(' ')[0]) + '</span>' : ''}</h1>
     <p class="sub muted">${m.complete ? 'Missão de hoje cumprida. Aproveite o descanso.' : `Faltam ${m.items.filter((i) => !i.opt && !i.ok).length} itens da missão de hoje · ${g.streak} dias de sequência`}</p></div></header>
-    ${ehAniversario() ? `<section class="card bday">${ic('cake', 30)}<div><span class="eyebrow">Hoje é o seu dia</span><strong class="lg">Feliz aniversário${nome ? ', ' + esc(nome.split(' ')[0]) : ''}!</strong><span class="tiny">${idade(cfg().birth)} anos. Que este novo ano seja de constância e graça.</span></div></section>` : ''}${liveBanner()}${kpis()}${heroCard(g)}${missionCard()}${lendoMini()}${metasMini()}${verseCard()}`;
+    ${ehAniversario() ? `<section class="card bday">${ic('cake', 30)}<div><span class="eyebrow">Hoje é o seu dia</span><strong class="lg">Feliz aniversário${nome ? ', ' + esc(nome.split(' ')[0]) : ''}!</strong><span class="tiny">${idade(cfg().birth)} anos. Que este novo ano seja de constância e graça.</span></div></section>` : ''}${liveBanner()}${ini.kpis ? kpis() : ''}${ini.seq ? heroCard(g) : ''}${ini.missao ? missionCard() : ''}${ini.lendo && areaOn('leitura') ? lendoMini() : ''}${ini.metas ? metasMini() : ''}${ini.verso && areaOn('devocional') ? verseCard() : ''}`;
 };

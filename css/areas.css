@@ -245,3 +245,21 @@ fieldset input + input { margin-top: 6px !important; }
 .bk-l dl, .dl-s { font-size: .92rem; margin: 6px 0 0; } .bk-l dt, .dl-s dt { font-weight: 600; margin-top: 8px; } .bk-l dd, .dl-s dd { margin: 2px 0 0; color: var(--muted); }
 .bk-l ul { margin: 2px 0; padding-left: 18px; }
 .ano-cta .row-gap { flex-wrap: wrap; gap: 10px; } .ano-cta .btn { white-space: nowrap; padding: 11px 16px; }
+
+/* estante de livros: capas em prateleiras */
+.cover.img { background: center / cover no-repeat; outline: 0; box-shadow: inset 3px 0 0 rgba(255, 255, 255, .25), inset 6px 0 6px -4px rgba(0, 0, 0, .35), 2px 4px 10px rgba(0, 0, 0, .25); }
+.cover.shelf { width: 92px; padding: 10px 8px; border-radius: 3px 7px 7px 3px; }
+.cover.shelf .cover-t { font-size: .78rem; } .cover.shelf .cover-a { font-size: .55rem; }
+.estante-c { overflow: hidden; }
+.prat { margin-top: 16px; }
+.prat-row { display: flex; gap: 14px; overflow-x: auto; scrollbar-width: none; padding: 10px 4px 0; margin: 0 -18px; padding-left: 18px; padding-right: 18px; align-items: flex-end; }
+.prat-row::-webkit-scrollbar { display: none; }
+.prat-tabua { height: 12px; margin: 0 -18px; border-radius: 3px; background: linear-gradient(180deg, color-mix(in srgb, var(--bg-2) 60%, #c9b79a), color-mix(in srgb, var(--bg-2) 80%, #8a6f4d)); box-shadow: 0 10px 14px -8px rgba(0, 0, 0, .35); }
+.livro { flex: none; width: 92px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-bottom: 4px; text-align: center; transition: transform .25s cubic-bezier(.2, .8, .2, 1); }
+.livro .cover { transition: transform .3s cubic-bezier(.2, .8, .2, 1), box-shadow .3s; transform-origin: bottom center; }
+.livro:hover .cover, .livro:focus-visible .cover { transform: translateY(-8px) rotate(-2deg); box-shadow: 6px 14px 22px rgba(0, 0, 0, .3); }
+.livro-t { font-size: .72rem; color: var(--muted); width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.livro-p { width: 80%; height: 4px; border-radius: 4px; background: var(--fill); overflow: hidden; } .livro-p i { display: block; height: 100%; background: var(--grad); }
+.livro.add .cover { background: none; border: 2px dashed var(--faint); color: var(--muted); display: grid; place-items: center; box-shadow: none; outline: 0; }
+.capa-up { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+.capa-up .grow { gap: 4px; align-items: flex-start; } .capa-up .foto-btn { margin-top: 6px; }

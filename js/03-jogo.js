@@ -44,6 +44,8 @@ function mission(iso = today()) {
   it('devocional', 'Devocional', devoOn(iso) || Object.values(bibleRead()).includes(iso) ? 1 : 0, !c.missao.devocional);
   it('escrita', 'Escrever', journalOn(iso) ? 1 : 0, !c.missao.escrita);
   it('treino', 'Treinar', workouts().some((w) => w.date === iso) ? 1 : 0, true);
+  const vis = items.filter((i) => i.k === 'habitos' || areaOn(i.k));
+  items.length = 0; items.push(...vis);
   const req = items.filter((i) => !i.opt);
   return { items, complete: req.length > 0 && req.every((i) => i.ok), pct: Math.round(100 * (req.length ? req.reduce((a, i) => a + i.prog, 0) / req.length : 0)) };
 }

@@ -28,7 +28,7 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/14-conquistas.js` | nível, medalhas, XP por área, recordes, mapa de atividade |
 | `js/15-menu.js` | Menu (todas as áreas), Perfil (foto, nome, aniversário, frase; `avatarHTML()`) e Ajustes |
 | `js/16-boot.js` | `render()` com transição, navegação, folha de baixo, eventos, relógio de 1 s, início (sempre o último) |
-| `css/base.css` · `telas.css` · `areas.css` · `motion.css` | tokens e formulários · casca/Início/Hábitos/Metas · demais áreas · animações |
+| `css/base.css` · `telas.css` · `areas.css` · `motion.css` · `mobile.css` | tokens, personalização e formulários · casca/Início/Hábitos/Metas · demais áreas · animações · celular e tablet (< 1024 px) |
 | `icons/` · `docs/marca.html` | logo (`logo.svg`, PNGs do ícone) e guia da identidade visual |
 | `sw.js` | offline e notificações |
 | `supabase/schema.sql` | tabelas e RLS |
@@ -37,14 +37,17 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 ## Identidade
 - Estilo Apple: fundo neutro, cartões de vidro (`.card` com `backdrop-filter`), cantos de 22px, Inter para tudo e Newsreader itálico só para versículos, citações e escrita.
 - Marca: gradiente brasa (`--grad`). Cada área tem uma cor fixa em `AREAS` (03-jogo.js) e nos tokens; não invente cores novas.
-- Celular: barra do topo + barra de abas flutuante. Computador (≥1024px): barra lateral de vidro (`sidebar()` em 16-boot.js) e páginas em grade de 2 colunas (`.pg-<página>`).
+- Celular e tablet (< 1024 px, `mobile.css`): cartões sólidos e barra de abas fixa com o + quadrado, no estilo do Diário do Bebê. Computador (≥1024px): barra lateral de vidro (`sidebar()` em 16-boot.js) e páginas em grade de 2 colunas (`.pg-<página>`).
 - Tema: automático, claro ou escuro (`data-theme` no `<html>`), em Ajustes ou no botão de tema (barra lateral e topo).
 - Barra lateral recolhível (`S.sideMini`, salvo em `localStorage` `dp-side`): só ícones, abre ao passar o mouse.
+- Personalizar (Ajustes): `config/main.accent` (cor de destaque, `data-accent`), `fonte` (`data-fs`), `areas` (liga/desliga leitura, treino, devocional, escrita; use `areaOn(k)`), `inicio` (cartões do Início).
+- Recomeçar (Ajustes): `RESET` em 15-menu.js lista os prefixos apagados por área; usa `store.delPrefixes()`.
+- Capa do livro: foto reduzida para 300×450 em `covers/<id>`; `bookCover()` usa a foto se existir. Leitura mostra a estante por situação.
 - Perfil: `config/main` (`name`, `birth`, `lema`) e foto reduzida para 320 px em `config/foto`.
 
 ## Padrões
 - Caminhos: `config/main`, `config/seen`, `books/`, `quotes/`, `reading/<data>`, `habits/`, `habitlog/<data>`, `workouts/`, `routines/`,
-  `exercises/`, `session/treino`, `session/leitura`, `goals/`, `devos/`, `bible/main`, `prayers/`, `journal/`,
+  `exercises/`, `session/treino`, `session/leitura`, `goals/`, `devos/`, `bible/main`, `prayers/`, `journal/`, `covers/`, `config/foto`,
   `plano/ano`, `anolog/<dia>`, `anodom/<data>`, `session/ano`.
 - Plano anual: `bible/main.plan === 'ano'` ativa o cartão guiado; concluir um dia gera `devos/ano-<i>` (conta na missão e no XP).
 - Gravar sempre por `store.set/merge/del`. Campo digitado no meio de uma tela: `store.set(path, data, true)` (não redesenha).

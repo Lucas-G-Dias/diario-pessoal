@@ -48,8 +48,8 @@ function menuTiles() {
     ['escrita', 'Escrita', 'pen', '#0a84ff', `${journal().length} entradas · ${escritaStreak()} dias`],
     ['metas', 'Metas', 'target', '#bf5af2', gs.length ? `${hit} de ${gs.length} batidas agora` : 'Defina sua primeira meta'],
     ['conquistas', 'Conquistas', 'trophy', '#ff5a1f', `Nível ${g.level.n} · ${g.conq.reduce((a, c) => a + c.tier, 0)} medalhas`],
-    ['ajustes', 'Ajustes', 'gear', '#8e8e93', 'Metas diárias, missão, lembretes, conta'],
-  ];
+    ['ajustes', 'Ajustes', 'gear', '#8e8e93', 'Perfil, personalizar, lembretes, conta'],
+  ].filter(([pg]) => !['leitura', 'devocional', 'escrita'].includes(pg) || areaOn(pg));
 }
 VIEWS.menu = () => `<header class="top"><h1 class="serif">Menu</h1></header>
   <div class="tiles">${menuTiles().map(([pg, nome, icon, cor, sub], i) => `<button class="tile" style="--hc:${cor};--i:${i}" data-page="${pg}"><span class="tile-ic">${ic(icon, 24)}</span><strong class="serif">${nome}</strong><span class="tiny muted">${esc(sub)}</span></button>`).join('')}</div>`;
@@ -76,10 +76,55 @@ VIEWS.ajustes = () => {
       ${chk('habitos', r.habitos, 'Avisar no horário de cada hábito')}${chk('resumo', r.resumo, 'Resumo às 22h se a missão não foi cumprida')}
       <p class="tiny muted">Deixe um horário vazio para não receber aquele lembrete. Só avisa se a tarefa ainda não foi feita.</p>
       <div class="form-actions"><button class="btn">Salvar lembretes</button></div></form>
+    <form class="card" data-form="personalizar"><span class="eyebrow">Personalizar</span>
+      <fieldset><legend>Cor de destaque</legend><div class="accents">${Object.entries(ACCENTS).map(([k, [nome, a, b]]) => `<label class="accent" style="--a:${a};--b:${b}"><input type="radio" name="accent" value="${k}" ${c.accent === k ? 'checked' : ''}><span></span><small>${nome}</small></label>`).join('')}</div></fieldset>
+      <fieldset><legend>Tamanho do texto</legend><div class="seg">${[['normal', 'Normal'], ['grande', 'Grande'], ['maior', 'Maior']].map(([k, n]) => `<label class="seg-op"><input type="radio" name="fonte" value="${k}" ${c.fonte === k ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div></fieldset>
+      <fieldset><legend>Áreas que você usa</legend><p class="tiny muted">Áreas desligadas somem do menu, da barra e da missão. Os registros continuam guardados.</p>
+        <div class="toggles">${[['leitura', 'Leitura', 'book'], ['treino', 'Treino', 'gym'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen']].map(([k, n, i]) => `<label class="tgl">${ic(i, 18)}<span>${n}</span><input type="checkbox" name="a_${k}" ${c.areas[k] ? 'checked' : ''}><i></i></label>`).join('')}</div></fieldset>
+      <fieldset><legend>Cartões do Início</legend><div class="toggles">${[['kpis', 'Números da semana'], ['seq', 'Sequência e nível'], ['missao', 'Missão do dia'], ['lendo', 'Livro que estou lendo'], ['metas', 'Metas'], ['verso', 'Versículo do dia']].map(([k, n]) => `<label class="tgl"><span>${n}</span><input type="checkbox" name="i_${k}" ${c.inicio[k] ? 'checked' : ''}><i></i></label>`).join('')}</div></fieldset>
+      <div class="form-actions"><button class="btn">Salvar</button></div></form>
     <section class="card"><span class="eyebrow">Aparência</span><div class="seg" role="group" aria-label="Tema">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Escuro']].map(([k, n]) => `<button class="${(S.theme || 'auto') === k ? 'on' : ''}" data-act="tema" data-id="${k}" aria-pressed="${(S.theme || 'auto') === k}">${n}</button>`).join('')}</div></section>
+    <section class="card"><span class="eyebrow">Recomeçar</span><p class="tiny muted">Apaga os registros de uma área para começar do zero. Seu perfil e seus ajustes continuam. Baixe um backup antes, se quiser guardar.</p>
+      <div class="reset-grid">${Object.entries(RESET).map(([k, [nome, icon]]) => `<button class="qbtn row" data-act="resetar" data-id="${k}">${ic(icon, 18)}<b>${nome}</b><span class="tiny muted">${contarArea(k)}</span></button>`).join('')}</div>
+      <button class="btn ghost danger wide" data-act="resetar" data-id="tudo">${ic('trash', 16)} Apagar tudo e recomeçar</button></section>
     <section class="card"><span class="eyebrow">Conta</span>
       <p class="muted">${LOCAL ? 'Modo local: os dados ficam só neste aparelho.' : `Conectado como <b>${esc(S.user?.email)}</b>`}${store.outbox.length ? ` · ${store.outbox.length} alteração(ões) aguardando internet` : ''}</p>
       <div class="form-actions start"><button class="btn ghost" data-act="exportar">Baixar backup</button>${LOCAL ? '' : `<button class="btn ghost danger" data-act="sair">${ic('out', 16)} Sair</button>`}</div></section>`;
+};
+
+const ACCENTS = { brasa: ['Brasa', '#ffa21f', '#ff5a1f'], oceano: ['Oceano', '#5ac8fa', '#0a84ff'], floresta: ['Floresta', '#a8e063', '#30b158'],
+  lavanda: ['Lavanda', '#bf5af2', '#5e5ce6'], rosa: ['Rosa', '#ff8fab', '#ff375f'], grafite: ['Grafite', '#8e8e93', '#3a3a3c'] };
+FORMS.personalizar = (v) => {
+  store.merge('config/main', { accent: v.accent || 'brasa', fonte: v.fonte || 'normal',
+    areas: Object.fromEntries(['leitura', 'treino', 'devocional', 'escrita'].map((k) => [k, !!v['a_' + k]])),
+    inicio: Object.fromEntries(['kpis', 'seq', 'missao', 'lendo', 'metas', 'verso'].map((k) => [k, !!v['i_' + k]])) });
+  toast('Do seu jeito. Salvo!');
+};
+
+/* o que cada "recomeçar" apaga */
+const RESET = {
+  leitura: ['Leitura', 'book', ['books', 'covers', 'quotes', 'reading', 'session/leitura']],
+  habitos: ['Hábitos', 'habit', ['habits', 'habitlog']],
+  treino: ['Treino', 'gym', ['workouts', 'routines', 'exercises', 'session/treino']],
+  devocional: ['Devocional', 'cross', ['devos', 'bible/main', 'prayers', 'plano/ano', 'anolog', 'anodom', 'session/ano']],
+  escrita: ['Escrita', 'pen', ['journal']],
+  metas: ['Metas', 'target', ['goals']],
+};
+function contarArea(k) {
+  const pre = RESET[k][2]; let n = 0;
+  for (const [p, d] of Object.entries(store.docs)) if (!d.deleted && pre.some((x) => p === x || p.startsWith(x + '/'))) n++;
+  return n ? `${n} ${n === 1 ? 'registro' : 'registros'}` : 'vazio';
+}
+ACT.resetar = (k) => {
+  if (k === 'tudo') {
+    const r = prompt('Isto apaga TODOS os seus registros (hábitos, treinos, leituras, devocionais, escrita e metas). Seu perfil continua.\n\nPara confirmar, digite APAGAR:');
+    if ((r || '').trim().toUpperCase() !== 'APAGAR') { toast('Nada foi apagado'); return; }
+    store.delPrefixes([...Object.values(RESET).flatMap((x) => x[2]), 'config/seen']);
+  } else {
+    if (!confirm(`Apagar todos os registros de ${RESET[k][0]}? Isso não pode ser desfeito.`)) return;
+    store.delPrefixes([...RESET[k][2], 'config/seen']);
+  }
+  S.prevGame = null; render(); celebrate(); toast(k === 'tudo' ? 'Tudo apagado. Bom recomeço!' : `${RESET[k][0]} recomeçou do zero`);
 };
 
 Object.assign(ACT, {

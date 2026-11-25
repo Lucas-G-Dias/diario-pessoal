@@ -34,6 +34,16 @@ const store = {
   set(path, data, silent) { this.write(path, data, false, silent); },
   merge(path, patch) { this.write(path, { ...(this.doc(path) || {}), ...patch }); },
   del(path) { this.write(path, {}, true); },
+  /* apaga de uma vez todos os documentos que começam com estes prefixos (recomeçar uma área) */
+  delPrefixes(prefixes, keep = []) {
+    const t = Date.now(); let n = 0;
+    for (const p of Object.keys(this.docs)) {
+      if (keep.includes(p) || this.docs[p].deleted || !prefixes.some((x) => p === x || p.startsWith(x + '/'))) continue;
+      this.docs[p] = { data: {}, t, deleted: true }; n++;
+      if (!LOCAL && !this.outbox.includes(p)) this.outbox.push(p);
+    }
+    STATS.clear(); GAME = null; this.save(); this.flush(); return n;
+  },
 
   /* envia o que está na fila (1 consulta para tudo) */
   async flush() {
@@ -68,10 +78,15 @@ const store = {
 };
 
 /* ---- atalhos de leitura usados pelas telas ---- */
-const DEF_CFG = { name: '', goalBooks: 20, goalPages: 20, goalWorkouts: 4, rest: 90,
+const DEF_CFG = { name: '', goalBooks: 20, goalPages: 20, goalWorkouts: 4, rest: 90, accent: 'brasa', fonte: 'normal',
+  inicio: { kpis: true, seq: true, missao: true, lendo: true, metas: true, verso: true },
+  areas: { leitura: true, treino: true, devocional: true, escrita: true },
   missao: { habitos: true, leitura: true, devocional: true, escrita: false },
   remind: { leitura: '21:00', habitos: true, treino: '18:00', devocional: '07:00', escrita: '', resumo: true } };
-const cfg = () => { const c = store.doc('config/main') || {}; return { ...DEF_CFG, ...c, missao: { ...DEF_CFG.missao, ...(c.missao || {}) }, remind: { ...DEF_CFG.remind, ...(c.remind || {}) } }; };
+const cfg = () => { const c = store.doc('config/main') || {}; return { ...DEF_CFG, ...c, missao: { ...DEF_CFG.missao, ...(c.missao || {}) }, remind: { ...DEF_CFG.remind, ...(c.remind || {}) },
+  inicio: { ...DEF_CFG.inicio, ...(c.inicio || {}) }, areas: { ...DEF_CFG.areas, ...(c.areas || {}) } }; };
+/* área ligada? (hábitos, metas e conquistas estão sempre ligadas) */
+const areaOn = (k) => cfg().areas[k] !== false;
 const books = () => store.col('books').sort((a, b) => (b.updated || 0) - (a.updated || 0));
 const habits = () => store.col('habits').sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
 const workouts = () => store.col('workouts').sort((a, b) => (b.date + (b.end || '')).localeCompare(a.date + (a.end || '')));

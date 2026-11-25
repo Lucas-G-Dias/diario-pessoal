@@ -1,0 +1,41 @@
+/* ============ celular e tablet (< 1024 px): cartões sólidos e barra de abas fixa, no estilo do Diário do Bebê ============
+   O computador continua com o vidro e a barra lateral. */
+@media (max-width: 1023px) {
+  :root { --paper: #fff; --paper-solid: #fff; --stroke: transparent; --blur: none; --r: 26px; --shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 4px 14px rgba(0, 0, 0, .04); }
+  :root[data-theme=dark] { --bg: #10171e; --bg-2: #1f2a35; --paper: #1a232c; --paper-solid: #1a232c; --fill: rgba(255, 255, 255, .07); --line: rgba(255, 255, 255, .08); --shadow: none; }
+  body::before { display: none; }
+  .card, .tile, .ficha, .book-row, .medal, .passo, .kpi, .lvl-chip { -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; }
+  .card { padding: 20px; margin-bottom: 14px; }
+  .top { margin: 14px 0 20px; }
+  .top h1 { font-size: 2rem; font-weight: 800; }
+  .appbar { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+  /* barra de abas fixa, de ponta a ponta, com o + quadrado no meio */
+  .nav { left: 0; right: 0; bottom: 0; max-width: none; border-radius: 0; padding: 8px 6px calc(10px + env(safe-area-inset-bottom)); align-items: flex-end;
+    background: var(--paper-solid); -webkit-backdrop-filter: none; backdrop-filter: none; border: 0; border-top: 1px solid var(--line); box-shadow: 0 -4px 20px rgba(0, 0, 0, .06); }
+  .nav-i { gap: 3px; font-size: .74rem; padding: 4px 0; border-radius: 0; background: none !important; }
+  .nav-ic { height: 30px; } .nav-ic svg { width: 26px; height: 26px; }
+  .nav-i.on { color: var(--brand); }
+  .nav-i.on .nav-ic { animation: none; }
+  .nav-plus { width: 64px; height: 64px; border-radius: 22px; margin: -34px 6px 4px; box-shadow: 0 10px 26px color-mix(in srgb, var(--brand) 45%, transparent); }
+  .nav-plus svg { width: 30px; height: 30px; }
+  .page { padding-bottom: calc(130px + env(safe-area-inset-bottom)); }
+  .restbar { bottom: calc(96px + env(safe-area-inset-bottom)); }
+  #toast { bottom: calc(110px + env(safe-area-inset-bottom)); }
+
+  /* blocos do menu como no exemplo: ícone num quadrado colorido, título e descrição */
+  .tiles { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .tile { min-height: 0; padding: 20px; gap: 6px; border-radius: 26px; }
+  .tile-ic { width: 52px; height: 52px; border-radius: 16px; margin-bottom: 10px; color: var(--hc); box-shadow: none; background: color-mix(in srgb, var(--hc) 18%, transparent); }
+  .tile-ic svg { width: 26px; height: 26px; }
+  .tile strong { margin: 0; font-size: 1.2rem; font-weight: 700; }
+  .tile .tiny { font-size: .88rem; }
+  .kpi { border-radius: 22px; }
+  .kpi-ic { background: color-mix(in srgb, var(--hc) 18%, transparent); color: var(--hc); }
+  .qbtn, .chk, .seg, .tabs-seg button, .chip { border-radius: 16px; }
+  dialog { background: var(--paper-solid); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (max-width: 1023px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme=light]) { --bg: #10171e; --bg-2: #1f2a35; --paper: #1a232c; --paper-solid: #1a232c; --fill: rgba(255, 255, 255, .07); --line: rgba(255, 255, 255, .08); --shadow: none; }
+}
+@media (min-width: 700px) and (max-width: 1023px) { .tiles { grid-template-columns: repeat(3, 1fr); } .page { max-width: 760px; } }
