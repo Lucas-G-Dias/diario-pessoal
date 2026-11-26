@@ -65,7 +65,7 @@ function plan(docs: Doc[], tz: string): Note[] {
   const dcfg = get("config/dieta"), dlog = get(`dietalog/${L.iso}`)?.r || {};
   if (r.dieta !== false && dcfg?.refeicoes) for (const m of dcfg.refeicoes) {
     const ok = m.dias === "uteis" ? L.dow > 0 && L.dow < 6 : m.dias === "fds" ? L.dow === 0 || L.dow === 6 : true;
-    if (ok && (!m.desde || m.desde <= L.iso) && !dlog[m.id] && due(m.hora, L.min)) out.push({ key: `dieta-${m.id}-${L.iso}`, title: m.nome, body: "Hora da refeição. Depois marque como foi: no plano, fora ou pulei.", url: "./#dieta" });
+    if (ok && (!m.desde || m.desde <= L.iso) && (!m.ate || m.ate > L.iso) && !dlog[m.id] && due(m.hora, L.min)) out.push({ key: `dieta-${m.id}-${L.iso}`, title: m.nome, body: "Hora da refeição. Depois marque como foi: no plano, fora ou pulei.", url: "./#dieta" });
   }
   if (r.habitos) for (const h of habits) if (!done(h) && due(h.time, L.min))
     out.push({ key: `habito-${h.id}-${L.iso}`, title: h.name, body: h.target > 1 ? `Meta de hoje: ${h.target}×. Marque no app.` : "Lembrete do seu hábito. Marque quando fizer.", url: "./#habitos" });

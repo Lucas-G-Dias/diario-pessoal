@@ -26,7 +26,7 @@ function proximosPassos() {
   // dieta: refeição da hora sem marcar
   const rf = areaOn('dieta') && store.doc('config/dieta') ? proximaRefeicao() : null;
   if (rf) add('dieta', 'food', AREAS.dieta[2], `${rf.nome} às ${rf.hora}`, 'Marque como foi: no plano, fora ou pulei', '', '', 'dieta');
-  if (areaOn('dieta') && !store.doc('config/dieta')) add('dieta', 'food', AREAS.dieta[2], 'Montar seu plano de refeições', 'Horários de cada refeição, para marcar no dia', 'dietaPlano');
+  if (areaOn('dieta') && !store.doc('config/dieta')) add('dieta', 'food', AREAS.dieta[2], 'Montar seu plano de refeições', 'Horários de cada refeição, para marcar no dia', 'refNova');
   // saúde: peso há mais de 7 dias
   const p = areaOn('saude') ? ultimo('peso') : null;
   if (areaOn('saude') && (!p || p.d < addDays(t, -7))) add('saude', 'pulse', AREAS.saude[2], 'Registrar o peso', p ? `Último em ${shortDate(p.d)}: ${fmt(p.v)} kg` : 'Comece a acompanhar sua evolução', 'novaMedida');

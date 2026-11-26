@@ -27,6 +27,7 @@ function lcMover(e) {
   const svg = box.querySelector('svg'), r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal, x = ((e.clientX - r.left) / r.width) * vb.width;
   const pts = JSON.parse(box.dataset.pts); let best = pts[0];
   for (const p of pts) if (Math.abs(p[0] - x) < Math.abs(best[0] - x)) best = p;
+  box.classList.add('ativo');
   const cur = svg.querySelector('.cursor'), cp = svg.querySelector('.cur-pt'), tip = box.querySelector('.lc-tip');
   cur.setAttribute('x1', best[0]); cur.setAttribute('x2', best[0]); cp.setAttribute('cx', best[0]); cp.setAttribute('cy', best[1]);
   tip.hidden = false; tip.innerHTML = `<b>${best[3]}</b><span>${best[2]}</span>`;
