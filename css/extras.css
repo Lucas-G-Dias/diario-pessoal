@@ -217,7 +217,19 @@
 }
 @media (min-width: 1024px) {
   .pg-metas > .bloco { min-width: 0; } .pg-metas > .bloco > .sec:first-child { margin-top: 6px; }
-  .pg-saude .dev-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
-  .pg-saude .dev-body > * { margin: 0; } .pg-saude .dev-body > :first-child { grid-column: 1 / -1; }
 }
 .sugere .grow { display: block; line-height: 1.45; }
+/* mural: no celular, lista na ordem; no computador, duas colunas independentes */
+.mural, .mural-col { display: flex; flex-direction: column; } .mural-col { display: contents; } .mural-i { min-width: 0; }
+@media (min-width: 1024px) {
+  .page[class*=pg-] > .mural { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+  .mural-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .mural-i > .card, .mural-i > section, .mural-i > button { margin: 0; width: 100%; }
+}
+@media (min-width: 1024px) {
+  .mural-i { display: flex; flex-direction: column; gap: 16px; } .mural-i > * { margin: 0; } .mural-i > .bloco > .sec:first-child { margin-top: 0; }
+  /* devocional e saúde: cartões em duas colunas que se encaixam (sem buraco embaixo do cartão mais baixo) */
+  .pg-devocional .dev-body, .pg-saude .dev-body { display: block; columns: 2; column-gap: 16px; }
+  .pg-devocional .dev-body > *, .pg-saude .dev-body > * { break-inside: avoid; margin: 0 0 16px; display: block; width: 100%; }
+  .pg-devocional .dev-body > :is(.sec, p), .pg-saude .dev-body > :first-child { column-span: all; }
+}

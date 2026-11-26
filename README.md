@@ -59,6 +59,7 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 
 ## Padrões
 - **Sempre responsivo**: toda tela precisa funcionar de 360 px (celular pequeno) a 1440 px (monitor), passando por tablet. Use `minmax(0, 1fr)` em grades, nada de largura fixa que vaze, e rode `node tests/responsivo.cjs` (com `python3 -m http.server 8765` aberto) antes de publicar: ele tem de dizer "nenhum vazamento".
+- Cartões de alturas diferentes lado a lado no computador: use `mural([[1, htmlA], [3, htmlC]], [[2, htmlB], [4, htmlD]])` (01-base.js), duas colunas independentes sem buraco; o número é a ordem no celular. Devocional e Saúde usam colunas CSS em `.dev-body`.
 - Personalização, perfil e recomeçar valem igual no celular e no computador (mesmos dados, mesmo `config/main`).
 - Caminhos: `config/main`, `config/seen`, `books/`, `quotes/`, `reading/<data>`, `habits/`, `habitlog/<data>`, `workouts/`, `routines/`,
   `exercises/`, `session/treino`, `session/leitura`, `goals/`, `devos/`, `bible/main`, `prayers/`, `journal/`, `covers/`, `config/foto`,

@@ -76,8 +76,7 @@ VIEWS.treino = () => {
       <div class="ficha-btns"><button class="btn-sm" data-act="iniciarTreino" data-id="${r.id}" ${sess ? 'disabled' : ''}>${ic('play', 13)} Iniciar</button>
       <button class="icon-btn" data-act="editarFicha" data-id="${r.id}" aria-label="Editar ficha ${esc(r.name)}">${ic('edit', 16)}</button></div></div>`).join('')}</div>`
     : `<div class="card empty"><p class="muted">Monte suas fichas uma vez e comece o treino com um toque.</p><button class="btn ghost" data-act="fichasSugeridas">Criar fichas A, B e C sugeridas</button></div>`}
-    ${treinoStats()}${recordesCard()}${musculosCard()}
-    <section class="card"><span class="eyebrow">Treinos por mês</span>${monthBars('Treinos', (x) => x.treinos)}</section>
+    ${mural([[1, treinoStats()], [3, musculosCard()]], [[2, recordesCard()], [4, `<section class="card"><span class="eyebrow">Treinos por mês</span>${monthBars('Treinos', (x) => x.treinos)}</section>`]])}
     ${ws.length ? `<h3 class="eyebrow sec">Histórico</h3><section class="card list">${ws.slice(0, 12).map(workoutRow).join('')}</section>` : ''}`;
 };
 

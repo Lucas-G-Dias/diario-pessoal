@@ -48,11 +48,11 @@ function medalhas(g) {
 VIEWS.conquistas = () => {
   const g = game();
   return `<header class="top"><h1 class="serif">Conquistas</h1></header>${heroNivel(g)}
-    <h3 class="eyebrow sec">Medalhas</h3>${medalhas(g)}${xpAreas(g)}${recordes(g)}${mapaAno(g)}
-    <section class="card"><span class="eyebrow">Como ganhar XP</span><div class="xp-table">${[['Hábito cumprido', XP.habito], ['Página lida', XP.pagina], ['Livro terminado', XP.livro], ['Citação', XP.citacao],
+    <h3 class="eyebrow sec">Medalhas</h3>${medalhas(g)}${mural([[1, xpAreas(g)], [3, mapaAno(g)]], [[2, recordes(g)], [4, comoGanhar()]])}`;
+};
+const comoGanhar = () => `<section class="card"><span class="eyebrow">Como ganhar XP</span><div class="xp-table">${[['Hábito cumprido', XP.habito], ['Página lida', XP.pagina], ['Livro terminado', XP.livro], ['Citação', XP.citacao],
       ['Treino', XP.treino], ['Recorde pessoal', XP.pr], ['Devocional', XP.devocional], ['Capítulo da Bíblia', XP.capitulo], ['Oração respondida', XP.oracao],
       ['Entrada no diário', `${XP.diario}–${XP.diario + 10}`], ['Missão do dia', XP.diaCompleto], ['Meta batida', XP.meta]].map(([n, v]) => `<span>${n}</span><b>+${v}</b>`).join('')}</div></section>`;
-};
 
 ACT.verConquista = (id) => {
   const c = game().conq.find((x) => x.id === id);

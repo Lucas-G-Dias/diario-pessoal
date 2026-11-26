@@ -14,6 +14,10 @@ const words = (s) => (String(s || '').trim().match(/\S+/g) || []).length;
 const mmss = (ms) => { const s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return h ? `${h}:${pad(m)}:${pad(s % 60)}` : `${m}:${pad(s % 60)}`; };
 const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 const MESES_L = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+/* duas colunas que se encaixam no computador (sem buraco quando um cartão é mais alto); no celular vira uma lista na ordem dada
+   mural([[1, htmlA], [3, htmlC]], [[2, htmlB], [4, htmlD]]) */
+const mural = (a, b) => { const col = (xs) => xs.filter(([, h]) => h).map(([o, h]) => `<div class="mural-i" style="order:${o}">${h}</div>`).join('');
+  return `<div class="mural"><div class="mural-col">${col(a)}</div><div class="mural-col">${col(b)}</div></div>`; };
 const DIAS = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 const DIAS_C = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const longDate = (iso) => { const d = new Date(iso + 'T12:00:00'); return `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}.`; };
