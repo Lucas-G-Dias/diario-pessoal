@@ -1,16 +1,16 @@
 /* ============ Dieta: plano de refeições com horário; marcar no plano, fora do plano ou pulei; água; adesão ============
-   config/dieta   { refeicoes: [{ id, nome, hora, dias: 'todos'|'uteis'|'fds', icon, desde, ate }], agua: <meta de copos>, desde }
+   config/dieta   { refeicoes: [{ id, nome, hora, dias: 'todos'|'uteis'|'fds', icon, desde, ate }], desde } (água: ver 12d-agua.js)
    Refeição apagada ganha 'ate' (some do plano, mas o histórico dos dias anteriores continua contando).
-   dietalog/<dia> { r: { <id>: 'ok'|'fora'|'pulei' }, notas: { <id>: texto }, agua: n }
+   dietalog/<dia> { r: { <id>: 'ok'|'fora'|'pulei' }, notas: { <id>: texto }, ml, goles }
    Pontos: no plano = 1 · fora do plano = 0,5 (comeu no horário) · pulei = 0. Dia na dieta = adesão de 80% ou mais. */
 const DIETA_PADRAO = [['cafe', 'Café da manhã', '07:00', 'cup'], ['lanche1', 'Lanche da manhã', '10:00', 'apple'], ['almoco', 'Almoço', '12:30', 'food'], ['lanche2', 'Lanche da tarde', '16:00', 'apple'], ['jantar', 'Jantar', '19:30', 'food']];
 const REF_ICONS = ['cup', 'apple', 'food', 'sun', 'moon', 'drop', 'gym', 'heart'];
 const PONTO = { ok: 1, fora: 0.5, pulei: 0 };
 const ST_DIETA = { ok: ['No plano', 'check', '#30b158'], fora: ['Fora do plano', 'minus', '#ff9f0a'], pulei: ['Pulei', 'x', '#ff3b30'] };
-const dietaCfg = () => { const c = store.doc('config/dieta'); return { agua: 8, ...(c || {}), refeicoes: c?.refeicoes || DIETA_PADRAO.map(([id, nome, hora, icon]) => ({ id, nome, hora, icon, dias: 'todos' })) }; };
+const dietaCfg = () => { const c = store.doc('config/dieta'); return { ...(c || {}), refeicoes: c?.refeicoes || DIETA_PADRAO.map(([id, nome, hora, icon]) => ({ id, nome, hora, icon, dias: 'todos' })) }; };
 const refsAtivas = () => dietaCfg().refeicoes.filter((r) => !r.ate || r.ate > today()).sort((a, b) => a.hora.localeCompare(b.hora));
 const refIcon = (r) => r.icon || (hm(r.hora) < 600 ? 'cup' : hm(r.hora) < 1080 && !/almo|jant/i.test(r.nome) ? 'apple' : 'food');
-const dietaLog = (d) => store.doc('dietalog/' + d) || { r: {}, notas: {}, agua: 0 };
+const dietaLog = (d) => store.doc('dietalog/' + d) || { r: {}, notas: {}, ml: 0, goles: [] };
 const refDueOn = (r, d) => { const w = dow(d); if ((r.desde && d < r.desde) || (r.ate && d >= r.ate)) return false; return r.dias === 'uteis' ? w > 0 && w < 6 : r.dias === 'fds' ? w === 0 || w === 6 : true; };
 const refsDoDia = (d) => dietaCfg().refeicoes.filter((r) => refDueOn(r, d)).sort((a, b) => a.hora.localeCompare(b.hora));
 const agoraMin = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
@@ -67,7 +67,7 @@ function dietaHoje() {
 
 VIEWS.dieta = () => {
   const t = today(), L = dietaLog(t), rs = refsDoDia(t), c = dietaCfg(), now = agoraMin(), a = adesaoDia(t);
-  const sem = adesaoPeriodo(lastDays(7)), mes = adesaoPeriodo(pastDays(periodOf('mes'))), escapa = maisEscapa(), copos = L.agua || 0;
+  const sem = adesaoPeriodo(lastDays(7)), mes = adesaoPeriodo(pastDays(periodOf('mes'))), escapa = maisEscapa();
   const marcadas = rs.filter((r) => L.r[r.id]).length;
   const pct = (v) => (v == null ? '—' : Math.round(v * 100) + '%');
   const grade = lastDays(28).map((d) => { const x = adesaoDia(d); return `<i class="${!x ? 'vazio' : x.pct >= 0.8 ? 'l4' : x.pct >= 0.5 ? 'l2' : 'l1'} ${d === t ? 'today' : ''}" title="${shortDate(d)}: ${x ? Math.round(x.pct * 100) + '%' : 'sem registro'}"></i>`; }).join('');
@@ -79,9 +79,7 @@ VIEWS.dieta = () => {
       ${progressBar(rs.length ? marcadas / rs.length : 0, 'dieta')}
       <div class="tl">${rs.length ? refsTimeline(t) : '<p class="tiny muted">Nenhuma refeição para hoje. Toque em "Editar plano" para montar o seu.</p>'}</div>
       <p class="tiny muted tl-dica">Toque numa refeição para anotar ou ajustar. Para apagar ou trocar refeições, use "Editar plano".</p></section>`}
-    <section class="card agua"><div class="row-between"><span class="eyebrow">Água · ${copos} de ${c.agua} copos</span><span class="tiny muted">${fmt(copos * 0.25)} L de ${fmt(c.agua * 0.25)} L</span></div>
-      ${progressBar(copos / c.agua, 'agua')}<div class="copos">${Array.from({ length: Math.max(c.agua, copos) }, (_, i) => `<button class="copo ${i < copos ? 'on' : ''}" data-act="dietaAgua" data-id="${i < copos ? i : i + 1}" aria-label="${i + 1} ${i ? 'copos' : 'copo'}">${ic('drop', 20)}</button>`).join('')}
-      <button class="copo mais" data-act="dietaAgua" data-id="${copos + 1}" aria-label="Mais um copo">${ic('plus', 16)}</button></div></section>
+    ${aguaCard(true)}
     <section class="card"><span class="eyebrow">Últimas 4 semanas</span><div class="hgrid dieta-g" aria-hidden="true">${grade}</div>
       <div class="cal-leg tiny muted"><span><i class="l4"></i>80% ou mais</span><span><i class="l2"></i>50–79%</span><span><i class="l1"></i>menos de 50%</span></div>
       ${escapa ? `<p class="sugere">${ic('chart', 14)}<span class="grow">A refeição que mais escapa é <b>${esc(escapa.nome)}</b> (${escapa.n} vezes em 30 dias). Vale planejar melhor esse horário.</span></p>` : ''}</section>
@@ -98,6 +96,4 @@ Object.assign(ACT, {
     if ($('#modal').open && S.refAberta === id) ACT.refAbrir(id);
     checkFullDay();
   },
-  dietaAgua: (n) => { const L = dietaLog(today()), v = Number(n) === (L.agua || 0) ? Number(n) - 1 : Number(n); store.set('dietalog/' + today(), { ...L, agua: Math.max(0, v) });
-    if (Math.max(0, v) === dietaCfg().agua) { confetti(40); toast('Meta de água batida!'); } else haptic(8); },
 });

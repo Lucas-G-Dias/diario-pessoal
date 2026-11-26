@@ -121,10 +121,10 @@ VIEWS.metas = () => {
   return `<header class="top"><h1 class="serif">Metas</h1><button class="btn-sm" data-act="novaMeta">${ic('plus', 16)} Meta</button></header>
     ${gs.length ? gs.map(goalCard).join('') : `<div class="card empty"><em class="serif lg">Nenhuma meta ainda.</em><p class="muted">Cada meta batida vale ${XP.meta} XP. Comece com uma:</p>
       <div class="hab-chips">${SUG_METAS.map(([kd, t, p], i) => `<button class="chip" data-act="sugestaoMeta" data-id="${i}">${ic('plus', 14)}${esc(goalTitle({ kind: kd, target: t }))} ${PERIODOS[p]}</button>`).join('')}</div></div>`}
-    <h3 class="eyebrow sec">Mês a mês</h3><section class="card">${monthReport(k)}</section>
-    <h3 class="eyebrow sec">Últimos 6 meses</h3><section class="card"><span class="eyebrow">Treinos</span>${monthBars('Treinos', (s) => s.treinos)}
+    <div class="bloco"><h3 class="eyebrow sec">Mês a mês</h3><section class="card">${monthReport(k)}</section></div>
+    <div class="bloco"><h3 class="eyebrow sec">Últimos 6 meses</h3><section class="card"><span class="eyebrow">Treinos</span>${monthBars('Treinos', (s) => s.treinos)}
       <span class="eyebrow">Hábitos cumpridos</span>${monthBars('Hábitos', (s) => (s.hab ? Math.round(s.hab.pct * 100) : 0), '%')}
-      <span class="eyebrow">Páginas lidas</span>${monthBars('Páginas', (s) => s.pages)}</section>`;
+      <span class="eyebrow">Páginas lidas</span>${monthBars('Páginas', (s) => s.pages)}</section></div>`;
 };
 
 function formMeta(g = {}) {

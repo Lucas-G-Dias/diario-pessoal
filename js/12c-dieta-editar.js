@@ -44,8 +44,7 @@ FORMS.refeicao = (v, f) => {
 /* ajustes: meta de água, lista do plano, voltar ao modelo */
 ACT.dietaAjustes = () => {
   const c = dietaCfg(), rs = refsAtivas();
-  openModal('Ajustes da dieta', `<form data-form="dietaAjustes"><label>Meta de água (copos de 250 ml)<input type="number" name="agua" min="1" max="24" value="${c.agua}"></label>
-    <div class="form-actions"><button class="btn">Salvar</button></div></form>
+  openModal('Ajustes da dieta', `<button class="pr-row" data-act="aguaAjustes"><span class="tl-ic agua-ic">${ic('drop', 16)}</span><span class="grow">Água<span class="tiny muted">meta de ${litros(aguaMeta())} por dia · botões rápidos</span></span>${ic('chev', 14)}</button>
     <span class="eyebrow">Seu plano · ${rs.length} ${rs.length === 1 ? 'refeição' : 'refeições'}</span>
     ${rs.map((r) => `<button class="pr-row" data-act="refAbrir" data-id="${r.id}"><span class="tl-ic">${ic(refIcon(r), 16)}</span><span class="grow">${esc(r.nome)}<span class="tiny muted">${r.hora} · ${DIAS_REF.find((d) => d[0] === (r.dias || 'todos'))[1]}</span></span>${ic('chev', 14)}</button>`).join('')}
     <div class="form-actions start"><button class="btn ghost" data-act="refNova">${ic('plus', 14)} Refeição</button><button class="btn ghost" data-act="dietaModelo">Voltar ao modelo</button></div>`);
@@ -55,7 +54,6 @@ ACT.dietaModelo = () => {
   const hoje = today(), velhas = dietaCfg().refeicoes.map((x) => (x.ate ? x : { ...x, ate: hoje }));
   salvarRefeicoes([...velhas, ...DIETA_PADRAO.map(([id, nome, hora, icon]) => ({ id: id + '-' + uid().slice(-4), nome, hora, icon, dias: 'todos', desde: hoje }))]); closeModal(); render();
 };
-FORMS.dietaAjustes = (v) => { salvarRefeicoes(dietaCfg().refeicoes, { agua: clamp(Number(v.agua) || 8, 1, 24) }); closeModal(); render(); toast('Salvo'); };
 
 /* ---- editar o plano na própria tela: nome, horário e dias na linha, lixeira à vista, modelos prontos ---- */
 const MODELOS_DIETA = {

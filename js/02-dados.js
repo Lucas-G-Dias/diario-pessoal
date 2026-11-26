@@ -79,7 +79,7 @@ const store = {
 
 /* ---- atalhos de leitura usados pelas telas ---- */
 const DEF_CFG = { name: '', goalBooks: 20, goalPages: 20, goalWorkouts: 4, rest: 90, accent: 'brasa', fonte: 'normal',
-  inicio: { kpis: true, seq: true, missao: true, dieta: true, lendo: true, metas: true, verso: true },
+  inicio: { kpis: true, seq: true, missao: true, dieta: true, agua: true, lendo: true, metas: true, verso: true },
   areas: { leitura: true, treino: true, devocional: true, escrita: true, saude: true, dieta: true },
   missao: { habitos: true, leitura: true, devocional: true, escrita: false, dieta: false },
   remind: { leitura: '21:00', habitos: true, treino: '18:00', devocional: '07:00', escrita: '', resumo: true } };

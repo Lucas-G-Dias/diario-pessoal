@@ -30,6 +30,7 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/12a-saude.js` | Saúde: peso, medidas, pressão (`medidas/`), exames de sangue com faixas de referência (`exames/`, `EXAMES`) |
 | `js/12b-dieta.js` | Dieta: plano de refeições (`config/dieta`), marcar no plano/fora/pulei por dia (`dietalog/<dia>`), água, adesão (no plano 1, fora 0,5, pulei 0) |
 | `js/12c-dieta-editar.js` | Dieta: folha de cada refeição (marcar, anotar, editar, apagar), nova refeição, ajustes, modo "Editar plano" (`planoEditor()`, `S.dietaEdit`: linhas editáveis com lixeira, modelos de 3 a 6 refeições `MODELOS_DIETA`) |
+| `js/12d-agua.js` | Água: ml do dia em `dietalog/<dia>` (`ml`, `goles` com hora; antigo `agua` em copos de 250 ml), meta e botões rápidos em `config/dieta` (`aguaMl`, `aguaRapido`), `aguaCard()` no Início e na Dieta, desfazer, quantidade personalizada (aceita vírgula) |
 | `js/12-escrita.js` | diário: humor, gratidão, pergunta do dia, contagem de palavras |
 | `js/13-metas.js` | metas (repetem por semana/mês/ano), `statsOf(período)`, relatório mês a mês, barras de 6 meses |
 | `js/13a-semana.js` | Resumo da semana: comparação, destaques, revisão (`semana/<segunda>`) e foco da semana |
@@ -62,6 +63,7 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 - Caminhos: `config/main`, `config/seen`, `books/`, `quotes/`, `reading/<data>`, `habits/`, `habitlog/<data>`, `workouts/`, `routines/`,
   `exercises/`, `session/treino`, `session/leitura`, `goals/`, `devos/`, `bible/main`, `prayers/`, `journal/`, `covers/`, `config/foto`,
   `plano/ano`, `anolog/<dia>`, `anodom/<data>`, `session/ano`, `config/exprefs`, `medidas/`, `exames/`, `semana/<segunda>`, `config/dieta`, `dietalog/<dia>`.
+- Número digitado pela pessoa (litros, quilos): campo `type="text" inputmode="decimal"` e troca de vírgula por ponto, porque no Brasil se digita "0,4".
 - Dieta: refeição nova guarda `desde` (só conta a partir do dia em que entrou); apagar guarda `ate` (some do plano, histórico continua); dia na dieta = adesão de 80% ou mais.
 - Plano anual: `bible/main.plan === 'ano'` ativa o cartão guiado; concluir um dia gera `devos/ano-<i>` (conta na missão e no XP).
 - Ao mudar o plano anual (js/10a-ano-dados.js), regenere `supabase/functions/lembretes/plano.ts` e publique a função de novo.

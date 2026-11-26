@@ -124,9 +124,6 @@
 .tl-dica { margin: 10px 0 0; }
 @media (max-width: 380px) { .tl-i { grid-template-columns: 42px 20px minmax(0, 1fr); gap: 0 6px; } .tl-i::before { left: 51px; } .tl-bts button { width: 32px; height: 32px; } .tl-ic { display: none; } }
 @media (prefers-reduced-motion: no-preference) { .enter .tl-i { animation: subir .45s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(.1s + var(--i) * .05s); } .tl-bts button.on, .tl-i.feito .tl-dot { animation: pop .35s cubic-bezier(.3, 1.6, .5, 1); } }
-.copos { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 8px; margin-top: 12px; }
-.copo { aspect-ratio: 1; border-radius: 12px; background: var(--fill); color: var(--faint); display: grid; place-items: center; transition: background .2s, color .2s, transform .2s; }
-.copo.on { background: color-mix(in srgb, #0a84ff 16%, transparent); color: #0a84ff; } .copo.mais { border: 1.5px dashed var(--faint); background: none; }
 .dieta-g i.l4 { background: #30b158; } .dieta-g i.l2 { background: #ff9f0a; } .dieta-g i.l1 { background: #ff3b30; } .dieta-g i.vazio { background: var(--fill); }
 .cal-leg .l4 { background: #30b158; } .cal-leg .l2 { background: #ff9f0a; } .cal-leg .l1 { background: #ff3b30; }
 /* folha da refeição */
@@ -183,3 +180,44 @@
   .pg-inicio:has(> .dieta-inicio) > .prox { grid-column: span 1; align-self: stretch; }
   .pg-inicio > .dieta-inicio { grid-column: span 1; align-self: stretch; }
 }
+/* água: litros do dia, botões rápidos, últimos 7 dias */
+.agua-top { display: flex; gap: 14px; align-items: center; }
+.agua-top .grow { min-width: 0; display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+.agua-v { font-size: 1.55rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; } .agua-v small { font-size: .9rem; font-weight: 500; color: var(--muted); }
+.agua-top .ring-wrap { color: #0a84ff; flex: none; }
+.agua-bts { display: grid; grid-template-columns: repeat(auto-fit, minmax(74px, 1fr)); gap: 8px; margin-top: 14px; }
+.agua-bts button { min-height: 44px; padding: 8px 6px; border-radius: 13px; font-weight: 600; font-size: .9rem; color: #0a84ff; background: color-mix(in srgb, #0a84ff 13%, transparent); display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap; transition: transform .15s, background .2s; }
+.agua-bts button:active { transform: scale(.95); } .agua-bts button:hover { background: color-mix(in srgb, #0a84ff 20%, transparent); }
+.agua-bts .outro { color: var(--ink); background: var(--fill); }
+.agua-card.batida .agua-v { color: #0a84ff; }
+.agua-ic { color: #0a84ff; background: color-mix(in srgb, #0a84ff 14%, transparent); }
+.ag-semana { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+.ag-d { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: .72rem; color: var(--muted); }
+.ag-d i { width: 100%; max-width: 30px; height: 54px; border-radius: 8px; background: var(--fill); position: relative; overflow: hidden; }
+.ag-d i::after { content: ''; position: absolute; inset: auto 0 0; height: var(--h); background: color-mix(in srgb, #0a84ff 55%, transparent); border-radius: 6px; }
+.ag-d i.ok::after { background: #0a84ff; } .ag-d.hoje span { color: #0a84ff; font-weight: 700; }
+.ag-opcoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+.ag-opcoes .chip-op { margin: 0; cursor: pointer; } .ag-opcoes .chip-op input { position: absolute; opacity: 0; }
+.ag-opcoes .chip-op span { display: block; text-align: center; padding: 10px 4px; border-radius: 12px; background: var(--fill); font-weight: 600; font-size: .88rem; color: var(--muted); }
+.ag-opcoes .chip-op:has(input:checked) span { background: color-mix(in srgb, #0a84ff 16%, transparent); color: #0a84ff; box-shadow: inset 0 0 0 1.5px #0a84ff; }
+.ag-opcoes .chip-op:has(input:focus-visible) span { outline: 2px solid #0a84ff; outline-offset: 2px; }
+@media (min-width: 1024px) {
+  .pg-inicio > .agua-card { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 24px; align-items: center; }
+  .pg-inicio > .agua-card .agua-bts { margin-top: 0; }
+}
+/* destaques da semana: frase corrida; cabeçalho das refeições sem quebrar o botão */
+.pr-row.static .grow { display: block; line-height: 1.45; } .pr-row.static b { font-size: inherit; }
+.refs > .row-between { gap: 8px; } .refs > .row-between .eyebrow { min-width: 0; }
+.refs .row-gap.tight { flex: none; } .refs .row-gap.tight .btn-sm { white-space: nowrap; }
+/* computador: escrita com pergunta e números lado a lado; listas longas na largura toda */
+@media (min-width: 1024px) {
+  .pg-escrita > .prompt { align-self: stretch; } .pg-escrita > .card:not(.prompt):not(.list) { align-self: stretch; }
+  .pg-escrita > .quick-grid { order: 1; } .pg-escrita > .sec, .pg-escrita > .card.list { order: 2; grid-column: 1 / -1; }
+  .pg-treino > .card.list { grid-column: 1 / -1; }
+}
+@media (min-width: 1024px) {
+  .pg-metas > .bloco { min-width: 0; } .pg-metas > .bloco > .sec:first-child { margin-top: 6px; }
+  .pg-saude .dev-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+  .pg-saude .dev-body > * { margin: 0; } .pg-saude .dev-body > :first-child { grid-column: 1 / -1; }
+}
+.sugere .grow { display: block; line-height: 1.45; }
