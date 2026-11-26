@@ -39,3 +39,10 @@
   :root:not([data-theme=light]) { --bg: #10171e; --bg-2: #1f2a35; --paper: #1a232c; --paper-solid: #1a232c; --fill: rgba(255, 255, 255, .07); --line: rgba(255, 255, 255, .08); --shadow: none; }
 }
 @media (min-width: 700px) and (max-width: 1023px) { .tiles { grid-template-columns: repeat(3, 1fr); } .page { max-width: 760px; } }
+
+/* telas estreitas: nada pode vazar para o lado */
+.moods { grid-template-columns: repeat(14, minmax(0, 1fr)); }
+.mood-d { min-width: 0; } .mood-d svg { width: 100%; max-width: 22px; height: auto; } .mood-d i { width: 100%; max-width: 22px; height: auto; aspect-ratio: 1; }
+.reset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.reset-grid .qbtn { min-width: 0; flex-wrap: wrap; } .reset-grid .qbtn .tiny { flex-basis: 100%; padding-left: 26px; text-align: left; }
+@media (max-width: 380px) { .reset-grid { grid-template-columns: 1fr; } }

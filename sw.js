@@ -1,5 +1,5 @@
 // Ritmo: funciona offline e recebe os lembretes
-const CACHE = 'ritmo-v4';
+const CACHE = 'ritmo-v5';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/favicon.svg', './icons/logo.svg', './icons/icon-192.png', './icons/apple-touch-icon.png', './vendor/supabase.js',
   './css/base.css', './css/telas.css', './css/areas.css', './css/motion.css', './css/mobile.css',
   './js/00-config.js', './js/01-base.js', './js/02-dados.js', './js/03-jogo.js', './js/04-efeitos.js', './js/05-inicio.js', './js/06-habitos.js', './js/07-treino.js', './js/08-sessao.js', './js/09-leitura.js', './js/10-biblia.js', './js/10a-ano-dados.js', './js/11-devocional.js', './js/11a-ano.js', './js/11b-ano-acoes.js', './js/11c-devo-abas.js', './js/12-escrita.js', './js/13-metas.js', './js/14-conquistas.js', './js/15-menu.js', './js/16-boot.js'];

@@ -46,6 +46,8 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 - Perfil: `config/main` (`name`, `birth`, `lema`) e foto reduzida para 320 px em `config/foto`.
 
 ## Padrões
+- **Sempre responsivo**: toda tela precisa funcionar de 360 px (celular pequeno) a 1440 px (monitor), passando por tablet. Use `minmax(0, 1fr)` em grades, nada de largura fixa que vaze, e rode `node tests/responsivo.cjs` (com `python3 -m http.server 8765` aberto) antes de publicar: ele tem de dizer "nenhum vazamento".
+- Personalização, perfil e recomeçar valem igual no celular e no computador (mesmos dados, mesmo `config/main`).
 - Caminhos: `config/main`, `config/seen`, `books/`, `quotes/`, `reading/<data>`, `habits/`, `habitlog/<data>`, `workouts/`, `routines/`,
   `exercises/`, `session/treino`, `session/leitura`, `goals/`, `devos/`, `bible/main`, `prayers/`, `journal/`, `covers/`, `config/foto`,
   `plano/ano`, `anolog/<dia>`, `anodom/<data>`, `session/ano`.
