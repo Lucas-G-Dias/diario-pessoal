@@ -2,7 +2,7 @@
    A sessão fica em session/treino (sincroniza: dá para continuar em outro aparelho). */
 const sess = () => store.doc('session/treino');
 const saveSess = (s, silent) => store.set('session/treino', s, silent);
-const blankSet = (prev) => ({ kg: prev?.kg ?? '', reps: prev?.reps ?? '', done: false });
+const blankSet = (prev) => ({ kg: prev?.kg ?? '', reps: prev?.reps ?? '', done: false, ...(prev?.w ? { w: true } : {}) });
 
 VIEWS.sessao = () => {
   const s = sess();
@@ -10,16 +10,16 @@ VIEWS.sessao = () => {
   const vol = s.ex.reduce((a, x) => a + x.sets.filter((z) => z.done).reduce((b, z) => b + (+z.kg || 0) * (+z.reps || 0), 0), 0);
   const feitas = s.ex.reduce((a, x) => a + x.sets.filter((z) => z.done).length, 0);
   const blocos = s.ex.map((x, ei) => { const prev = lastSets(x.id);
-    return `<section class="card exb"><div class="row-between"><button class="ex-name serif" data-act="verExercicio" data-id="${x.id}">${esc(exById(x.id).n)}</button>
-      <button class="icon-btn" data-act="tirarExercicio" data-id="${ei}" aria-label="Tirar ${esc(exById(x.id).n)} do treino">${ic('trash', 16)}</button></div>
+    return `<section class="card exb">${exHead(x, ei)}
       <div class="sets"><div class="set head"><span>Série</span><span>Anterior</span><span>kg</span><span>Reps</span><span>${ic('check', 14)}</span></div>
-      ${x.sets.map((z, si) => `<div class="set ${z.done ? 'done' : ''}"><span class="sn">${si + 1}</span><span class="prev">${prev[si] ? `${fmt(prev[si].kg || 0)}×${prev[si].reps}` : '—'}</span>
+      ${x.sets.map((z, si) => `<div class="set ${z.done ? 'done' : ''} ${z.w ? 'warm' : ''}"><button class="sn" data-act="tipoSerie" data-id="${ei}:${si}" aria-label="Série ${si + 1}: ${z.w ? 'aquecimento' : 'trabalho'}. Tocar para trocar">${z.w ? 'A' : si + 1 - x.sets.slice(0, si).filter((q) => q.w).length}</button><span class="prev">${prev[si] ? `${fmt(prev[si].kg || 0)}×${prev[si].reps}` : '—'}</span>
         <input inputmode="decimal" aria-label="Carga da série ${si + 1}" placeholder="${prev[si]?.kg ?? 'kg'}" value="${esc(z.kg)}" data-chg="setVal" data-id="${ei}:${si}:kg">
         <input inputmode="numeric" aria-label="Repetições da série ${si + 1}" placeholder="${prev[si]?.reps ?? '0'}" value="${esc(z.reps)}" data-chg="setVal" data-id="${ei}:${si}:reps">
         <button class="sdone" data-act="feitoSerie" data-id="${ei}:${si}" aria-pressed="${z.done}" aria-label="Série ${si + 1} feita">${ic('check', 16)}</button></div>`).join('')}</div>
       <div class="row-between"><button class="link" data-act="maisSerie" data-id="${ei}">+ Série</button>${x.sets.length > 1 ? `<button class="link muted-l" data-act="menosSerie" data-id="${ei}">− Série</button>` : ''}</div></section>`; }).join('');
   return `<header class="top sess-top"><div><span class="eyebrow">${esc(s.name || 'Treino')}</span><h1 class="serif tick" data-since="${s.start}">${mmss(Date.now() - s.start)}</h1></div>
-    <button class="btn" data-act="finalizarTreino">Finalizar</button></header>
+    <button class="btn" data-act="finalizarTreino">${s.editId ? 'Salvar' : 'Finalizar'}</button></header>
+    <p class="tiny muted sess-dica">Toque no número da série para marcar como aquecimento (A). O descanso começa sozinho quando você marca ✓.</p>
     <div class="stats three sess-stats"><div><b class="serif">${s.ex.length}</b><span>exercícios</span></div><div><b class="serif">${feitas}</b><span>séries feitas</span></div><div><b class="serif">${fmt(vol)}</b><span>kg de volume</span></div></div>
     ${blocos || '<div class="card empty"><p class="muted">Adicione o primeiro exercício.</p></div>'}
     <button class="btn wide ghost" data-act="addExercicio">${ic('plus', 16)} Exercício</button>
@@ -43,27 +43,31 @@ function tickRest() {
 }
 
 function startSession(r) {
-  const ex = (r?.ex || []).map((id) => { const p = lastSets(id); return { id, sets: (p.length ? p : [{}, {}, {}]).map((z) => blankSet(z)) }; });
+  const ex = (r?.ex || []).map((id) => { const p = lastSets(id); return { id, rest: exPref(id).rest, note: exPref(id).note, sets: (p.length ? p : [{}, {}, {}]).map((z) => blankSet(z)) }; });
   saveSess({ start: Date.now(), name: r?.name || 'Treino livre', routineId: r?.id || '', ex });
   S.page = 'sessao'; render(); scrollTo(0, 0); haptic(20);
 }
 
 function finishSession() {
-  const s = sess(), end = Date.now(), ex = s.ex.map((x) => ({ id: x.id, sets: x.sets.filter((z) => z.done && +z.reps > 0).map((z) => ({ kg: +z.kg || 0, reps: +z.reps })) })).filter((x) => x.sets.length);
+  const s = sess(), end = s.editId ? s.end || Date.now() : Date.now();
+  const ex = s.ex.map((x) => ({ id: x.id, rest: x.rest, note: x.note || '', sets: x.sets.filter((z) => z.done && +z.reps > 0).map((z) => ({ kg: +z.kg || 0, reps: +z.reps, ...(z.w ? { w: true } : {}) })) })).filter((x) => x.sets.length);
+  const trab = (x) => x.sets.filter((z) => !z.w);
   if (!ex.length) { toast('Marque pelo menos uma série como feita'); return; }
   const prs = [];
   for (const x of ex) {
-    const h = exHistory(x.id); if (!h.length) continue; // primeira vez não conta como recorde
+    const h = exHistory(x.id).filter((q) => q.wid !== s.editId && q.best > 0); if (!h.length || !trab(x).length) continue; // primeira vez não conta como recorde
     const best = Math.max(...h.map((p) => p.best)), maxKg = Math.max(...h.map((p) => p.maxKg));
-    const nb = Math.max(...x.sets.map((z) => e1rm(z.kg, z.reps))), nk = Math.max(...x.sets.map((z) => z.kg));
+    const nb = Math.max(...trab(x).map((z) => e1rm(z.kg, z.reps))), nk = Math.max(...trab(x).map((z) => z.kg));
     if (nk > maxKg) prs.push({ ex: x.id, kind: 'peso', val: nk }); else if (nb > best + 0.01) prs.push({ ex: x.id, kind: '1rm', val: Math.round(nb) });
   }
-  const volume = ex.reduce((a, x) => a + x.sets.reduce((b, z) => b + z.kg * z.reps, 0), 0), min = Math.max(1, Math.round((end - s.start) / 60000));
-  const id = uid(), xp = XP.treino + prs.length * XP.pr;
-  store.set('workouts/' + id, { date: isoOf(new Date(s.start)), start: s.start, end, min, name: s.name, type: 'Musculação', routineId: s.routineId, ex, volume, prs });
-  store.del('session/treino'); S.rest = null; S.page = 'treino'; render(); confetti();
+  const volume = ex.reduce((a, x) => a + trab(x).reduce((b, z) => b + z.kg * z.reps, 0), 0), min = Math.max(1, Math.round((end - s.start) / 60000));
+  const id = s.editId || uid(), xp = XP.treino + prs.length * XP.pr;
+  store.set('workouts/' + id, { ...(s.editId ? store.doc('workouts/' + id) : {}), date: isoOf(new Date(s.start)), start: s.start, end, min, name: s.name, type: 'Musculação', routineId: s.routineId, ex, volume, prs });
+  store.del('session/treino'); S.rest = null; S.page = 'treino'; render();
+  if (s.editId) { toast('Treino atualizado'); return; }
+  confetti();
   openModal('Treino concluído', `<div class="unlock"><div class="big-num serif">+${xp} XP</div>
-    <div class="stats three"><div><b class="serif">${min}</b><span>minutos</span></div><div><b class="serif">${ex.reduce((a, x) => a + x.sets.length, 0)}</b><span>séries</span></div><div><b class="serif">${fmt(volume)}</b><span>kg de volume</span></div></div>
+    <div class="stats three"><div><b class="serif">${min}</b><span>minutos</span></div><div><b class="serif">${ex.reduce((a, x) => a + trab(x).length, 0)}</b><span>séries</span></div><div><b class="serif">${fmt(volume)}</b><span>kg de volume</span></div></div>
     ${prs.length ? `<span class="eyebrow red">Recordes pessoais</span>${prs.map((p) => `<div class="pr-row static">${ic('trophy', 18)}<span class="grow">${esc(exById(p.ex).n)}</span><b class="serif">${fmt(p.val)} kg</b></div>`).join('')}` : ''}
     <button class="btn wide" data-act="fechar">Fechar</button></div>`);
   checkFullDay();
@@ -106,13 +110,13 @@ function formTreino(w = {}) {
 Object.assign(ACT, {
   iniciarTreino: (id) => { if (sess()) { S.page = 'sessao'; render(); return; } startSession(id ? { id, ...store.doc('routines/' + id) } : null); },
   finalizarTreino: () => finishSession(),
-  descartarTreino: () => { if (confirm('Descartar este treino? Nada será salvo.')) { store.del('session/treino'); S.rest = null; S.page = 'treino'; render(); } },
+  descartarTreino: () => { if (confirm(sess()?.editId ? 'Sair sem salvar as mudanças?' : 'Descartar este treino? Nada será salvo.')) { store.del('session/treino'); S.rest = null; S.page = 'treino'; render(); } },
   feitoSerie: (k) => {
     const [ei, si] = k.split(':').map(Number), s = sess(), z = s.ex[ei].sets[si];
     if (!z.done) { const p = lastSets(s.ex[ei].id)[si]; if (z.kg === '' && p) z.kg = p.kg; if (z.reps === '' && p) z.reps = p.reps; }
     if (!z.done && !(+z.reps > 0)) { toast('Preencha as repetições'); return; }
     z.done = !z.done; saveSess(s);
-    if (z.done) { const t = cfg().rest; S.rest = { end: Date.now() + t * 1000, total: t * 1000 }; haptic(15); render(); }
+    if (z.done) { const x = s.ex[ei], t = z.w ? 45 : x.rest || exPref(x.id).rest; S.rest = { end: Date.now() + t * 1000, total: t * 1000 }; haptic(15); render(); }
   },
   maisSerie: (ei) => { const s = sess(), x = s.ex[ei], last = x.sets[x.sets.length - 1]; x.sets.push(blankSet(last)); saveSess(s); },
   menosSerie: (ei) => { const s = sess(); s.ex[ei].sets.pop(); saveSess(s); },

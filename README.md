@@ -12,9 +12,13 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/02-dados.js` | `store` (cache local + fila + sync; `set(path, data, silent)`), atalhos de cada coleção |
 | `js/03-jogo.js` | XP por área, nível, sequência com escudos, missão do dia, conquistas (`CONQ`), `celebrate()` |
 | `js/04-efeitos.js` | XP flutuante, confete, vibração, bipe, anel `ring()`, medalha `medalSVG()`, `progressBar()` |
+| `js/04a-grafico.js` | `lineChart()` gráfico de linha interativo (toque/mouse mostra o ponto), usado em Saúde e exercícios |
+| `js/05a-proximos.js` | Início: "Próximos passos" (o que fazer agora, com um toque) e atalhos das áreas |
 | `js/05-inicio.js` | Início: selo da sequência, anéis da missão, hábitos do dia, leitura, metas, versículo |
 | `js/06-habitos.js` | hábitos simples e com contagem, força do hábito, % hoje/7 dias/mês, pausar/retomar |
 | `js/07-treino.js` | biblioteca `EXS`, 1RM (Epley), histórico por exercício, séries por músculo, recordes, aba Treino |
+| `js/07a-animacoes.js` | boneco animado (SVG) por padrão de movimento (`MOV`, `EX_MOV`) e dicas de execução |
+| `js/08a-treino-mais.js` | preferências por exercício (`config/exprefs`: descanso, faixa, anotação), sugestão de carga (progressão dupla), editar treino salvo |
 | `js/08-sessao.js` | treino ao vivo (`session/treino`), descanso, finalizar com recordes, fichas, atividade rápida |
 | `js/09-leitura.js` | livros, cronômetro (`session/leitura`), ritmo e previsão, citações, estante |
 | `js/10-biblia.js` | livros e capítulos da Bíblia, planos de leitura, versículos do dia |
@@ -23,16 +27,20 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/11a-ano.js` | Bíblia em um ano: datas (âncoras, domingos livres), cartão do Devocional, dia guiado (completo/curto), domingo de revisão |
 | `js/11c-devo-abas.js` | abas do Devocional: Calendário, Progresso (capítulos, constância, estante), Livros, Diário e Oração |
 | `js/11b-ano-acoes.js` | ações do plano anual: concluir (cria `devos/` e marca `bible/main`), reorganizar, calendário, livros |
+| `js/12a-saude.js` | Saúde: peso, medidas, pressão (`medidas/`), exames de sangue com faixas de referência (`exames/`, `EXAMES`) |
 | `js/12-escrita.js` | diário: humor, gratidão, pergunta do dia, contagem de palavras |
 | `js/13-metas.js` | metas (repetem por semana/mês/ano), `statsOf(período)`, relatório mês a mês, barras de 6 meses |
+| `js/13a-semana.js` | Resumo da semana: comparação, destaques, revisão (`semana/<segunda>`) e foco da semana |
 | `js/14-conquistas.js` | nível, medalhas, XP por área, recordes, mapa de atividade |
 | `js/15-menu.js` | Menu (todas as áreas), Perfil (foto, nome, aniversário, frase; `avatarHTML()`) e Ajustes |
+| `js/15a-extras.js` | arrastar para reordenar (`data-sort` + `data-sid` + `.drag`, campo `ord`), restaurar backup, busca em tudo |
+| `js/15b-tour.js` | tour de boas-vindas (um cartão por área, `config/main.tourDone`) |
 | `js/16-boot.js` | `render()` com transição, navegação, folha de baixo, eventos, relógio de 1 s, início (sempre o último) |
-| `css/base.css` · `telas.css` · `areas.css` · `motion.css` · `mobile.css` | tokens, personalização e formulários · casca/Início/Hábitos/Metas · demais áreas · animações · celular e tablet (< 1024 px) |
+| `css/base.css` · `telas.css` · `areas.css` · `motion.css` · `extras.css` · `mobile.css` | tokens, personalização e formulários · casca/Início/Hábitos/Metas · demais áreas · animações · celular e tablet (< 1024 px) |
 | `icons/` · `docs/marca.html` | logo (`logo.svg`, PNGs do ícone) e guia da identidade visual |
 | `sw.js` | offline e notificações |
 | `supabase/schema.sql` | tabelas e RLS |
-| `supabase/functions/lembretes` | lembretes push (pg_cron a cada 15 min) |
+| `supabase/functions/lembretes` | lembretes push (pg_cron a cada 15 min); `plano.ts` tem a cópia compacta do plano anual para dizer a leitura do dia; resumo da semana no domingo 20h |
 
 ## Identidade
 - Estilo Apple: fundo neutro, cartões de vidro (`.card` com `backdrop-filter`), cantos de 22px, Inter para tudo e Newsreader itálico só para versículos, citações e escrita.
@@ -50,8 +58,9 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 - Personalização, perfil e recomeçar valem igual no celular e no computador (mesmos dados, mesmo `config/main`).
 - Caminhos: `config/main`, `config/seen`, `books/`, `quotes/`, `reading/<data>`, `habits/`, `habitlog/<data>`, `workouts/`, `routines/`,
   `exercises/`, `session/treino`, `session/leitura`, `goals/`, `devos/`, `bible/main`, `prayers/`, `journal/`, `covers/`, `config/foto`,
-  `plano/ano`, `anolog/<dia>`, `anodom/<data>`, `session/ano`.
+  `plano/ano`, `anolog/<dia>`, `anodom/<data>`, `session/ano`, `config/exprefs`, `medidas/`, `exames/`, `semana/<segunda>`.
 - Plano anual: `bible/main.plan === 'ano'` ativa o cartão guiado; concluir um dia gera `devos/ano-<i>` (conta na missão e no XP).
+- Ao mudar o plano anual (js/10a-ano-dados.js), regenere `supabase/functions/lembretes/plano.ts` e publique a função de novo.
 - Gravar sempre por `store.set/merge/del`. Campo digitado no meio de uma tela: `store.set(path, data, true)` (não redesenha).
 - Hábito com contagem: `target > 1`, valor no `habitlog` é número; use sempre `hDone(h, log)` / `hVal(h, log)`.
 - Hábito pausado: `paused: true` + `pauses: [{from, to}]`; não conta nos dias pausados (`habitDueOn`).

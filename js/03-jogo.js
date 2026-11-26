@@ -1,8 +1,8 @@
 /* ============ gamificação: XP por área, nível, sequência com escudos, missão, conquistas ============ */
-const XP = { pagina: 1, habito: 10, treino: 40, pr: 30, livro: 100, citacao: 5, diaCompleto: 25, meta: 150, devocional: 20, capitulo: 3, oracao: 20, diario: 15 };
+const XP = { pagina: 1, habito: 10, treino: 40, pr: 30, livro: 100, citacao: 5, diaCompleto: 25, meta: 150, devocional: 20, capitulo: 3, oracao: 20, diario: 15, saude: 5, exame: 20, revisao: 15 };
 const TITULOS = ['Aprendiz', 'Iniciado', 'Constante', 'Disciplinado', 'Focado', 'Inabalável', 'Mestre', 'Sábio', 'Lenda'];
 const AREAS = { habitos: ['Hábitos', 'habit', '#30b158'], leitura: ['Leitura', 'book', '#ff9f0a'], treino: ['Treino', 'gym', '#ff375f'],
-  devocional: ['Devocional', 'cross', '#5e5ce6'], escrita: ['Escrita', 'pen', '#0a84ff'], metas: ['Metas', 'target', '#bf5af2'], bonus: ['Bônus', 'sparkle', '#ff5a1f'] };
+  devocional: ['Devocional', 'cross', '#5e5ce6'], escrita: ['Escrita', 'pen', '#0a84ff'], metas: ['Metas', 'target', '#bf5af2'], saude: ['Saúde', 'pulse', '#30b0c7'], bonus: ['Bônus', 'sparkle', '#ff5a1f'] };
 
 /* dias com algum registro, e quais áreas tiveram registro em cada dia (para o mapa do ano) */
 function activity() {
@@ -65,9 +65,9 @@ function totals() {
   const xp = {
     habitos: checks * XP.habito, leitura: pages * XP.pagina + finished * XP.livro + qs * XP.citacao, treino: ws.length * XP.treino + prs * XP.pr,
     devocional: dv * XP.devocional + caps * XP.capitulo + resp * XP.oracao, escrita: js.reduce((a, j) => a + XP.diario + Math.min(10, Math.floor((j.words || 0) / 50)), 0),
-    metas: metas * XP.meta, bonus: full * XP.diaCompleto,
+    metas: metas * XP.meta, saude: store.col('medidas').length * XP.saude + store.col('exames').length * XP.exame, bonus: full * XP.diaCompleto + store.col('semana').filter((x) => x.c).length * XP.revisao,
   };
-  return { pages, maxPages, checks, full, finished, qs, workouts: ws.length, prs, volume, dv, caps, resp, entradas: js.length, palavras, metas, anoDias, xpArea: xp, xp: Object.values(xp).reduce((a, b) => a + b, 0) };
+  return { pages, maxPages, checks, full, finished, qs, workouts: ws.length, prs, volume, dv, caps, resp, entradas: js.length, palavras, metas, anoDias, saudeN: store.col('medidas').length + store.col('exames').length, xpArea: xp, xp: Object.values(xp).reduce((a, b) => a + b, 0) };
 }
 
 /* nível n exige 75·n·(n−1) XP acumulado: 0, 150, 450, 900, 1500… */
@@ -95,6 +95,7 @@ const CONQ = [
   ['diario', 'Escritor', 'pen', 'entradas no diário', (t) => t.entradas, [1, 10, 50, 200]],
   ['palavras', 'Pena', 'pen', 'palavras escritas', (t) => t.palavras, [1000, 10000, 50000, 200000]],
   ['metas', 'Determinação', 'target', 'metas batidas', (t) => t.metas, [1, 5, 20, 50]],
+  ['saude', 'Cuidado', 'pulse', 'registros de saúde', (t) => t.saudeN, [1, 10, 50, 150]],
   ['ano', 'Um ano na Palavra', 'cross', 'dias do plano anual', (t) => t.anoDias, [6, 52, 156, 312]],
 ].map(([id, nome, icon, unit, fn, tiers]) => ({ id, nome, icon, unit, fn, tiers }));
 

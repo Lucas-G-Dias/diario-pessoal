@@ -80,7 +80,7 @@ const store = {
 /* ---- atalhos de leitura usados pelas telas ---- */
 const DEF_CFG = { name: '', goalBooks: 20, goalPages: 20, goalWorkouts: 4, rest: 90, accent: 'brasa', fonte: 'normal',
   inicio: { kpis: true, seq: true, missao: true, lendo: true, metas: true, verso: true },
-  areas: { leitura: true, treino: true, devocional: true, escrita: true },
+  areas: { leitura: true, treino: true, devocional: true, escrita: true, saude: true },
   missao: { habitos: true, leitura: true, devocional: true, escrita: false },
   remind: { leitura: '21:00', habitos: true, treino: '18:00', devocional: '07:00', escrita: '', resumo: true } };
 const cfg = () => { const c = store.doc('config/main') || {}; return { ...DEF_CFG, ...c, missao: { ...DEF_CFG.missao, ...(c.missao || {}) }, remind: { ...DEF_CFG.remind, ...(c.remind || {}) },
@@ -88,9 +88,9 @@ const cfg = () => { const c = store.doc('config/main') || {}; return { ...DEF_CF
 /* área ligada? (hábitos, metas e conquistas estão sempre ligadas) */
 const areaOn = (k) => cfg().areas[k] !== false;
 const books = () => store.col('books').sort((a, b) => (b.updated || 0) - (a.updated || 0));
-const habits = () => store.col('habits').sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
+const habits = () => store.col('habits').sort((a, b) => porOrdem(a, b) || (a.time || '99').localeCompare(b.time || '99'));
 const workouts = () => store.col('workouts').sort((a, b) => (b.date + (b.end || '')).localeCompare(a.date + (a.end || '')));
-const routines = () => store.col('routines').sort((a, b) => a.name.localeCompare(b.name));
+const routines = () => store.col('routines').sort((a, b) => porOrdem(a, b) || a.name.localeCompare(b.name));
 const quotes = () => store.col('quotes').sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 const devos = () => store.col('devos').sort((a, b) => b.date.localeCompare(a.date));
 const prayers = () => store.col('prayers').sort((a, b) => (b.date || '').localeCompare(a.date || ''));

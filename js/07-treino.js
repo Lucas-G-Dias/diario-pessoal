@@ -18,7 +18,7 @@ const EXS = [
 const allExs = () => [...EXS, ...store.col('exercises')];
 const exById = (id) => allExs().find((e) => e.id === id) || { id, n: id, g: '' };
 const e1rm = (kg, reps) => (kg > 0 && reps > 0 ? kg * (1 + Math.min(reps, 15) / 30) : 0); // fórmula de Epley
-const doneSets = (x) => (x.sets || []).filter((s) => s.done !== false && Number(s.reps) > 0);
+const doneSets = (x) => (x.sets || []).filter((s) => s.done !== false && Number(s.reps) > 0 && !s.w);
 
 /* histórico de um exercício: melhor série de cada treino, do mais antigo ao mais novo */
 function exHistory(exId) {
@@ -71,7 +71,7 @@ VIEWS.treino = () => {
     ${sess ? `<button class="live big-live" data-page="sessao">${ic('gym', 20)}<span>Continuar treino</span><b class="tick" data-since="${sess.start}">${mmss(Date.now() - sess.start)}</b>${ic('chev', 16)}</button>`
     : `<button class="btn wide start" data-act="iniciarTreino">${ic('play', 18)} Começar treino vazio</button>`}
     <div class="row-between sec"><h3 class="eyebrow">Fichas</h3><button class="link" data-act="novaFicha">+ Ficha</button></div>
-    ${rs.length ? `<div class="fichas">${rs.map((r) => `<div class="ficha" style="--hc:${r.color || 'var(--red)'}"><strong class="serif">${esc(r.name)}</strong>
+    ${rs.length ? `<div class="fichas" data-sort="routines">${rs.map((r) => `<div class="ficha" data-sid="${r.id}" style="--hc:${r.color || 'var(--red)'}">${dragHandle(r.name)}<strong class="serif">${esc(r.name)}</strong>
       <span class="tiny muted">${r.ex.slice(0, 4).map((e) => esc(exById(e).n)).join(' · ')}${r.ex.length > 4 ? ` +${r.ex.length - 4}` : ''}</span>
       <div class="ficha-btns"><button class="btn-sm" data-act="iniciarTreino" data-id="${r.id}" ${sess ? 'disabled' : ''}>${ic('play', 13)} Iniciar</button>
       <button class="icon-btn" data-act="editarFicha" data-id="${r.id}" aria-label="Editar ficha ${esc(r.name)}">${ic('edit', 16)}</button></div></div>`).join('')}</div>`
@@ -88,20 +88,19 @@ ACT.verTreino = (id) => {
     <div class="tw-sets">${doneSets(x).map((s, i) => `<span><i>${i + 1}</i>${fmt(s.kg || 0)} kg × ${s.reps}</span>`).join('')}</div></div>`).join('');
   openModal(w.name || w.type, `<p class="muted">${longDate(w.date)}${w.min ? ' · ' + w.min + ' min' : ''}${w.volume ? ' · ' + fmt(w.volume) + ' kg de volume' : ''}</p>
     ${ex || (w.notes ? `<p class="w-notes">${esc(w.notes)}</p>` : '')}
-    <div class="form-actions"><button class="btn ghost danger" data-act="apagarTreino" data-id="${id}">${ic('trash', 16)} Apagar</button>${w.ex?.length ? '' : `<button class="btn ghost" data-act="editarTreino" data-id="${id}">Editar</button>`}</div>`);
+    <div class="form-actions"><button class="btn ghost danger" data-act="apagarTreino" data-id="${id}">${ic('trash', 16)} Apagar</button>${w.ex?.length ? `<button class="btn" data-act="editarTreinoMus" data-id="${id}">${ic('edit', 14)} Editar séries</button>` : `<button class="btn ghost" data-act="editarTreino" data-id="${id}">Editar</button>`}</div>`);
 };
 
 /* evolução de um exercício: gráfico do 1RM estimado */
 ACT.verExercicio = (id) => {
-  const h = exHistory(id), e = exById(id);
-  if (!h.length) { openModal(e.n, '<p class="muted">Ainda sem registros deste exercício.</p>'); return; }
-  const pts = h.slice(-20), max = Math.max(...pts.map((p) => p.best)), min = Math.min(...pts.map((p) => p.best)), W = 300, H = 110;
-  const xy = pts.map((p, i) => [pts.length === 1 ? W / 2 : (i / (pts.length - 1)) * (W - 20) + 10, H - 12 - ((p.best - min) / (max - min || 1)) * (H - 30)]);
-  const melhor = h.reduce((a, p) => (p.best > a.best ? p : a), h[0]), maxKg = Math.max(...h.map((p) => p.maxKg));
-  openModal(e.n, `<div class="stats three"><div><b class="serif">${fmt(Math.round(melhor.best))} kg</b><span>1RM estimado</span></div><div><b class="serif">${fmt(maxKg)} kg</b><span>maior carga</span></div><div><b class="serif">${h.length}</b><span>treinos</span></div></div>
-    <svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução do 1RM estimado"><polyline points="${xy.map((p) => p.join(',')).join(' ')}" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linejoin="round"/>
-    ${xy.map((p) => `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="var(--paper)" stroke="var(--red)" stroke-width="2"/>`).join('')}</svg>
-    <span class="eyebrow">Últimas vezes</span>${h.slice(-5).reverse().map((p) => `<div class="hrate"><span>${shortDate(p.date)}</span><b>${p.sets.map((s) => `${fmt(s.kg || 0)}×${s.reps}`).join('  ')}</b><span></span></div>`).join('')}`);
+  const h = exHistory(id), e = exById(id), m = movDe(id), p = exPref(id), g = sugestao(id);
+  const topo = `<div class="ex-hero">${exAnim(id, 150)}<div class="grow"><span class="eyebrow">${e.g} · ${m.nome}</span><p>${m.dica}</p>
+    <span class="tiny muted">Descanso ${mmss(p.rest * 1000)} · faixa ${p.lo}–${p.hi} repetições${p.note ? ' · ' + esc(p.note) : ''}</span></div></div>${g ? `<div class="sugere ${g.up ? 'up' : ''}">${ic(g.up ? 'trophy' : 'chart', 14)}<span class="grow">Próximo treino: ${g.txt}</span></div>` : ''}`;
+  if (!h.length) { openModal(e.n, topo + '<p class="muted">Ainda sem registros deste exercício. Faça o primeiro treino e a evolução aparece aqui.</p>'); return; }
+  const melhor = h.reduce((a, q) => (q.best > a.best ? q : a), h[0]), maxKg = Math.max(...h.map((q) => q.maxKg));
+  openModal(e.n, `${topo}<div class="stats three"><div><b class="serif">${fmt(Math.round(melhor.best))} kg</b><span>1RM estimado</span></div><div><b class="serif">${fmt(maxKg)} kg</b><span>maior carga</span></div><div><b class="serif">${h.length}</b><span>treinos</span></div></div>
+    <span class="eyebrow">1RM estimado · toque nos pontos</span>${lineChart(h.map((q) => ({ d: q.date, v: Math.round(q.best * 10) / 10 })), { unid: ' kg' })}
+    <span class="eyebrow">Últimas vezes</span>${h.slice(-5).reverse().map((q) => `<div class="hrate"><span>${shortDate(q.date)}</span><b>${q.sets.map((z) => `${fmt(z.kg || 0)}×${z.reps}`).join('  ')}</b><span></span></div>`).join('')}`);
 };
 
 ACT.verExercicios = () => {

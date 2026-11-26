@@ -1,12 +1,12 @@
 /* ============ casca: login, navegação, transições, modal, eventos, relógio, início ============ */
 const NAV = [['inicio', 'Início', 'home'], ['habitos', 'Hábitos', 'habit'], null, ['treino', 'Treino', 'gym'], ['menu', 'Menu', 'grid']];
-const NAV_DE = { sessao: 'treino', ano: 'menu', leitura: 'menu', devocional: 'menu', escrita: 'menu', metas: 'menu', conquistas: 'menu', ajustes: 'menu' };
-const SUB = ['leitura', 'devocional', 'escrita', 'metas', 'conquistas', 'ajustes'];
+const NAV_DE = { sessao: 'treino', ano: 'menu', saude: 'menu', semana: 'menu', leitura: 'menu', devocional: 'menu', escrita: 'menu', metas: 'menu', conquistas: 'menu', ajustes: 'menu' };
+const SUB = ['leitura', 'devocional', 'escrita', 'saude', 'semana', 'metas', 'conquistas', 'ajustes'];
 
 /* barra lateral de vidro (computador) */
 const SIDE = [['Hoje', [['inicio', 'Início', 'home'], ['habitos', 'Hábitos', 'habit'], ['treino', 'Treino', 'gym']]],
-  ['Áreas', [['leitura', 'Leitura', 'book'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen']]],
-  ['Progresso', [['metas', 'Metas', 'target'], ['conquistas', 'Conquistas', 'trophy']]]];
+  ['Áreas', [['leitura', 'Leitura', 'book'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen'], ['saude', 'Saúde', 'pulse']]],
+  ['Progresso', [['semana', 'Semana', 'chart'], ['metas', 'Metas', 'target'], ['conquistas', 'Conquistas', 'trophy']]]];
 function sidebar(ativo) {
   const g = game(), nome = cfg().name || 'Você', v = verseOfDay(), tema = S.theme || 'auto';
   const temaIc = tema === 'dark' ? 'moon' : tema === 'light' ? 'sun' : 'auto', temaNome = tema === 'dark' ? 'Escuro' : tema === 'light' ? 'Claro' : 'Automático';
@@ -14,7 +14,8 @@ function sidebar(ativo) {
       <button class="side-tog" data-act="sideTog" aria-label="${S.sideMini ? 'Fixar a barra lateral aberta' : 'Recolher a barra lateral'}" title="${S.sideMini ? 'Fixar aberta' : 'Recolher'}">${ic('side', 18)}</button></div>
     <button class="me" data-act="perfil" aria-label="Seu perfil">${avatarHTML(40, `<i>${g.level.n}</i>`)}
       <span class="grow lbl"><b>${esc(nome.split(' ')[0])}</b><span class="tiny muted">Nível ${g.level.n} · ${g.level.title}</span>${progressBar(g.level.pct, 'gold')}</span></button>
-    ${SIDE.map(([t, items]) => [t, items.filter(([pg]) => !['treino', 'leitura', 'devocional', 'escrita'].includes(pg) || areaOn(pg))]).filter(([, it]) => it.length).map(([t, items]) => `<span class="side-t lbl">${t}</span>${items.map(([pg, n, i]) => `<button class="side-i ${ativo === pg ? 'on' : ''}" data-page="${pg}" ${ativo === pg ? 'aria-current="page"' : ''} title="${n}">${ic(i, 18)}<span class="lbl">${n}</span>${pg === 'inicio' && g.streak ? `<em class="lbl">${ic('flame', 12)}${g.streak}</em>` : ''}</button>`).join('')}`).join('')}
+    ${SIDE.map(([t, items]) => [t, items.filter(([pg]) => !['treino', 'leitura', 'devocional', 'escrita', 'saude'].includes(pg) || areaOn(pg))]).filter(([, it]) => it.length).map(([t, items]) => `<span class="side-t lbl">${t}</span>${items.map(([pg, n, i]) => `<button class="side-i ${ativo === pg ? 'on' : ''}" data-page="${pg}" ${ativo === pg ? 'aria-current="page"' : ''} title="${n}">${ic(i, 18)}<span class="lbl">${n}</span>${pg === 'inicio' && g.streak ? `<em class="lbl">${ic('flame', 12)}${g.streak}</em>` : ''}</button>`).join('')}`).join('')}
+    <button class="side-i" data-act="buscar" title="Buscar">${ic('search', 18)}<span class="lbl">Buscar</span></button>
     <button class="side-note" data-page="devocional"><span class="eyebrow">Versículo do dia</span><span class="vtxt">“${esc(v[1])}”</span><b>${esc(v[0])}</b></button>
     <div class="side-foot"><button class="side-i ${ativo === 'ajustes' ? 'on' : ''}" data-page="ajustes" title="Ajustes">${ic('gear', 18)}<span class="lbl">Ajustes</span></button>
       <button class="side-i tema" data-act="temaCiclo" title="Tema: ${temaNome}" aria-label="Tema: ${temaNome}. Trocar">${ic(temaIc, 18)}<span class="lbl">${temaNome}</span></button></div></aside>`;
@@ -34,11 +35,12 @@ function render() {
   app.innerHTML = `${!S.online ? '<div class="banner">Sem internet. Os registros ficam guardados e sobem quando voltar.</div>' : ''}
     ${LOCAL && !S.hideLocal ? '<div class="banner">Modo local (servidor não conectado). <button class="link" data-act="ocultarAviso">Ok</button></div>' : ''}
     <div class="shell ${S.sideMini ? 'mini' : ''}">${sidebar(S.page === 'ano' ? 'devocional' : S.page)}<div class="col">
-    <header class="appbar"><div class="brand">${LOGO(28)}<span>${APP}</span></div><div class="app-acts"><button class="icon-btn" data-act="temaCiclo" aria-label="Trocar tema claro ou escuro">${ic(S.theme === 'dark' ? 'moon' : S.theme === 'light' ? 'sun' : 'auto', 18)}</button>
+    <header class="appbar"><div class="brand">${LOGO(28)}<span>${APP}</span></div><div class="app-acts"><button class="icon-btn" data-act="buscar" aria-label="Buscar em tudo">${ic('search', 18)}</button><button class="icon-btn" data-act="temaCiclo" aria-label="Trocar tema claro ou escuro">${ic(S.theme === 'dark' ? 'moon' : S.theme === 'light' ? 'sun' : 'auto', 18)}</button>
       <button class="lvl-chip" data-act="perfil" aria-label="Seu perfil: nível ${g.level.n}, ${g.streak} dias de sequência">${ic('flame', 14)}<b>${g.streak}</b>${avatarHTML(28)}</button></div></header>
     <main class="page pg-${S.page} ${novo ? 'enter' : ''}">${S.page === 'ano' ? `<button class="back" data-page="devocional">${ic('chev', 16)} Devocional</button>` : SUB.includes(S.page) ? `<button class="back" data-page="menu">${ic('chev', 16)} Menu</button>` : ''}${view()}</main></div></div>
     <nav class="nav" aria-label="Abas">${nav}</nav>`;
   scrollTo(0, y);
+  tourTalvez();
   if (S.page === 'inicio' && !S.bdayFesta && ehAniversario()) { S.bdayFesta = true; setTimeout(() => confetti(160), 700); }
 }
 

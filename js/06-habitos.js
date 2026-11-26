@@ -35,7 +35,7 @@ function habitCard(h, i) {
   const btn = t > 1
     ? `<button class="hcount ${ok ? 'on' : ''}" data-act="marcarHabito" data-id="${h.id}" ${due ? '' : 'disabled'} aria-label="Somar 1 em ${esc(h.name)}: ${v} de ${t}">${ring(v / t, cor, 46, ok ? ic('check', 18) : `<b>${v}</b>`)}</button>`
     : `<button class="hcheck ${ok ? 'on' : ''}" data-act="marcarHabito" data-id="${h.id}" ${due ? '' : 'disabled'} aria-pressed="${ok}" aria-label="${ok ? 'Desmarcar' : 'Marcar'} ${esc(h.name)} hoje">${ok ? ic('check', 20) : ''}</button>`;
-  return `<section class="card habit" style="--hc:${cor};--i:${i}">
+  return `<section class="card habit" data-sid="${h.id}" style="--hc:${cor};--i:${i}">${dragHandle(h.name)}
     <div class="row-between">${btn}
     <div class="grow"><strong class="serif lg">${esc(h.name)}</strong><span class="tiny muted">${diasTexto(h.days)}${t > 1 ? ` · ${t}× ao dia` : ''}${h.time ? ' · ' + h.time : ''}${due ? '' : ' · folga hoje'}</span></div>
     <div class="hnums"><span class="hstreak" title="Sequência">${ic('flame', 15)}<b>${s}</b></span><span class="tiny muted">${pctTxt(mes)} no mês</span></div>
@@ -49,7 +49,7 @@ VIEWS.habitos = () => {
   const vazio = `<div class="card empty"><em class="serif lg">Nenhum hábito ativo.</em><p class="muted">Toque para adicionar:</p>
     <div class="hab-chips center">${SUGESTOES.map((s, i) => `<button class="chip" data-act="sugestaoHabito" data-id="${i}">${ic('plus', 14)}${esc(s[0])}</button>`).join('')}</div></div>`;
   return `<header class="top"><h1 class="serif">Hábitos</h1><button class="btn-sm" data-act="novoHabito">${ic('plus', 16)} Hábito</button></header>
-    ${ativos.length ? habitResumo() + ativos.map(habitCard).join('') : vazio}
+    ${ativos.length ? habitResumo() + `<div data-sort="habits" class="sort-list">${ativos.map(habitCard).join('')}</div>` : vazio}
     ${pausados.length ? `<h3 class="eyebrow sec">Pausados · ${pausados.length}</h3><section class="card list">${pausados.map((h) => `<div class="w-row"><div class="grow"><strong>${esc(h.name)}</strong>
       <span class="tiny muted">pausado desde ${shortDate(h.pauses[h.pauses.length - 1].from)} · o histórico continua guardado</span></div>
       <button class="btn-sm" data-act="retomarHabito" data-id="${h.id}">Retomar</button>
