@@ -1,8 +1,8 @@
 /* ============ gamificação: XP por área, nível, sequência com escudos, missão, conquistas ============ */
-const XP = { pagina: 1, habito: 10, treino: 40, pr: 30, livro: 100, citacao: 5, diaCompleto: 25, meta: 150, devocional: 20, capitulo: 3, oracao: 20, diario: 15, saude: 5, exame: 20, revisao: 15 };
+const XP = { pagina: 1, habito: 10, treino: 40, pr: 30, livro: 100, citacao: 5, diaCompleto: 25, meta: 150, devocional: 20, capitulo: 3, oracao: 20, diario: 15, saude: 5, exame: 20, revisao: 15, refeicao: 5, refeicaoFora: 2 };
 const TITULOS = ['Aprendiz', 'Iniciado', 'Constante', 'Disciplinado', 'Focado', 'Inabalável', 'Mestre', 'Sábio', 'Lenda'];
 const AREAS = { habitos: ['Hábitos', 'habit', '#30b158'], leitura: ['Leitura', 'book', '#ff9f0a'], treino: ['Treino', 'gym', '#ff375f'],
-  devocional: ['Devocional', 'cross', '#5e5ce6'], escrita: ['Escrita', 'pen', '#0a84ff'], metas: ['Metas', 'target', '#bf5af2'], saude: ['Saúde', 'pulse', '#30b0c7'], bonus: ['Bônus', 'sparkle', '#ff5a1f'] };
+  devocional: ['Devocional', 'cross', '#5e5ce6'], escrita: ['Escrita', 'pen', '#0a84ff'], metas: ['Metas', 'target', '#bf5af2'], saude: ['Saúde', 'pulse', '#30b0c7'], dieta: ['Dieta', 'food', '#a2845e'], bonus: ['Bônus', 'sparkle', '#ff5a1f'] };
 
 /* dias com algum registro, e quais áreas tiveram registro em cada dia (para o mapa do ano) */
 function activity() {
@@ -16,6 +16,7 @@ function activity() {
   devos().forEach((x) => add(x.date, 'devocional'));
   Object.values(bibleRead()).forEach((d) => add(d, 'devocional'));
   journal().forEach((j) => add(j.date, 'escrita'));
+  store.col('dietalog').forEach((x) => { if (Object.keys(x.r || {}).length) add(x.id, 'dieta'); });
   return map;
 }
 
@@ -43,6 +44,7 @@ function mission(iso = today()) {
   it('leitura', `Ler ${c.goalPages} páginas`, readingOn(iso) / c.goalPages, !c.missao.leitura);
   it('devocional', 'Devocional', devoOn(iso) || Object.values(bibleRead()).includes(iso) ? 1 : 0, !c.missao.devocional);
   it('escrita', 'Escrever', journalOn(iso) ? 1 : 0, !c.missao.escrita);
+  if (store.doc('config/dieta') && refsDoDia(iso).length) { const L = dietaLog(iso), rs = refsDoDia(iso); it('dieta', 'Dieta', rs.reduce((a, r) => a + (PONTO[L.r[r.id]] || 0), 0) / rs.length / 0.8, !c.missao.dieta); }
   it('treino', 'Treinar', workouts().some((w) => w.date === iso) ? 1 : 0, true);
   const vis = items.filter((i) => i.k === 'habitos' || areaOn(i.k));
   items.length = 0; items.push(...vis);
@@ -61,13 +63,14 @@ function totals() {
   const ws = workouts(), finished = books().filter((b) => b.status === 'lido').length, qs = quotes().length;
   const prs = ws.reduce((a, w) => a + (w.prs || []).length, 0), volume = ws.reduce((a, w) => a + (w.volume || 0), 0);
   const dv = devos().length, caps = Object.keys(bibleRead()).length, resp = prayers().filter((x) => x.answered).length;
+  const dietaRefs = { ok: 0, fora: 0 }; store.col('dietalog').forEach((x) => Object.values(x.r || {}).forEach((s) => { if (s in dietaRefs) dietaRefs[s]++; }));
   const anoDias = store.col('anolog').filter((x) => x.c).length, js = journal(), palavras = js.reduce((a, j) => a + (j.words || 0), 0), metas = goalsHit();
   const xp = {
     habitos: checks * XP.habito, leitura: pages * XP.pagina + finished * XP.livro + qs * XP.citacao, treino: ws.length * XP.treino + prs * XP.pr,
     devocional: dv * XP.devocional + caps * XP.capitulo + resp * XP.oracao, escrita: js.reduce((a, j) => a + XP.diario + Math.min(10, Math.floor((j.words || 0) / 50)), 0),
-    metas: metas * XP.meta, saude: store.col('medidas').length * XP.saude + store.col('exames').length * XP.exame, bonus: full * XP.diaCompleto + store.col('semana').filter((x) => x.c).length * XP.revisao,
+    metas: metas * XP.meta, saude: store.col('medidas').length * XP.saude + store.col('exames').length * XP.exame, dieta: dietaRefs.ok * XP.refeicao + dietaRefs.fora * XP.refeicaoFora, bonus: full * XP.diaCompleto + store.col('semana').filter((x) => x.c).length * XP.revisao,
   };
-  return { pages, maxPages, checks, full, finished, qs, workouts: ws.length, prs, volume, dv, caps, resp, entradas: js.length, palavras, metas, anoDias, saudeN: store.col('medidas').length + store.col('exames').length, xpArea: xp, xp: Object.values(xp).reduce((a, b) => a + b, 0) };
+  return { pages, maxPages, checks, full, finished, qs, workouts: ws.length, prs, volume, dv, caps, resp, entradas: js.length, palavras, metas, anoDias, dietaOk: dietaRefs.ok, saudeN: store.col('medidas').length + store.col('exames').length, xpArea: xp, xp: Object.values(xp).reduce((a, b) => a + b, 0) };
 }
 
 /* nível n exige 75·n·(n−1) XP acumulado: 0, 150, 450, 900, 1500… */
@@ -95,6 +98,7 @@ const CONQ = [
   ['diario', 'Escritor', 'pen', 'entradas no diário', (t) => t.entradas, [1, 10, 50, 200]],
   ['palavras', 'Pena', 'pen', 'palavras escritas', (t) => t.palavras, [1000, 10000, 50000, 200000]],
   ['metas', 'Determinação', 'target', 'metas batidas', (t) => t.metas, [1, 5, 20, 50]],
+  ['dieta', 'No prato', 'food', 'refeições no plano', (t) => t.dietaOk, [10, 100, 500, 1500]],
   ['saude', 'Cuidado', 'pulse', 'registros de saúde', (t) => t.saudeN, [1, 10, 50, 150]],
   ['ano', 'Um ano na Palavra', 'cross', 'dias do plano anual', (t) => t.anoDias, [6, 52, 156, 312]],
 ].map(([id, nome, icon, unit, fn, tiers]) => ({ id, nome, icon, unit, fn, tiers }));

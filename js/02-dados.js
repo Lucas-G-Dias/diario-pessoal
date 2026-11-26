@@ -80,8 +80,8 @@ const store = {
 /* ---- atalhos de leitura usados pelas telas ---- */
 const DEF_CFG = { name: '', goalBooks: 20, goalPages: 20, goalWorkouts: 4, rest: 90, accent: 'brasa', fonte: 'normal',
   inicio: { kpis: true, seq: true, missao: true, lendo: true, metas: true, verso: true },
-  areas: { leitura: true, treino: true, devocional: true, escrita: true, saude: true },
-  missao: { habitos: true, leitura: true, devocional: true, escrita: false },
+  areas: { leitura: true, treino: true, devocional: true, escrita: true, saude: true, dieta: true },
+  missao: { habitos: true, leitura: true, devocional: true, escrita: false, dieta: false },
   remind: { leitura: '21:00', habitos: true, treino: '18:00', devocional: '07:00', escrita: '', resumo: true } };
 const cfg = () => { const c = store.doc('config/main') || {}; return { ...DEF_CFG, ...c, missao: { ...DEF_CFG.missao, ...(c.missao || {}) }, remind: { ...DEF_CFG.remind, ...(c.remind || {}) },
   inicio: { ...DEF_CFG.inicio, ...(c.inicio || {}) }, areas: { ...DEF_CFG.areas, ...(c.areas || {}) } }; };

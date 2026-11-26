@@ -71,6 +71,8 @@ const ICONS = {
   search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
   drag: '<circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/>',
   pulse: '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+  food: '<path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 21V3c2 1.5 3 4.5 3 8h-3"/>',
+  drop: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/>',
   moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
   auto: '<circle cx="12" cy="12" r="8"/><path d="M12 4v16" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>',
   side: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/>',

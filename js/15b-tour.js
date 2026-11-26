@@ -7,6 +7,7 @@ const TOUR = [
   { k: 'leitura', t: 'Leitura', d: 'Sua estante com capas. Toque num livro para ler, ligue o cronômetro e registre as páginas.', b: ['Previsão de quando termina o livro', 'Citações guardadas', 'Meta de livros no ano'] },
   { k: 'devocional', t: 'Devocional', d: 'Versículo do dia, devocional guiado e a Bíblia inteira em um ano, de segunda a sábado.', b: ['Domingo de revisão da semana', 'Caderno de oração', 'Progresso dos 66 livros'] },
   { k: 'escrita', t: 'Escrita', d: 'Um diário com pergunta do dia, gratidão e humor. Poucas linhas já fazem diferença.', b: ['Humor dos últimos 14 dias', 'Busca em tudo que você escreveu', 'Só você lê'] },
+  { k: 'dieta', t: 'Dieta', d: 'Seu plano de refeições com horários. Marque cada uma: no plano, fora do plano ou pulei. Sem contar calorias.', b: ['Adesão do dia, da semana e do mês', 'Água em copos', 'Lembrete no horário de cada refeição'] },
   { k: 'saude', t: 'Saúde', d: 'Peso, medidas, pressão e exames de sangue, com gráficos que você toca para ver cada ponto.', b: ['IMC e meta de peso', 'Faixas de referência dos exames', 'Evolução de cada marcador'] },
   { k: 'fim', cor: 'var(--brand)', icon: 'bell', t: 'Lembretes na hora certa', d: 'O Ritmo avisa só do que ainda falta: o devocional de manhã, a leitura à noite, cada hábito no horário.', b: ['Você ajusta os horários em Ajustes', 'No iPhone, instale na tela de início primeiro'] },
 ];

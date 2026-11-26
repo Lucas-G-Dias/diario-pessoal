@@ -38,7 +38,7 @@ function leituraAno(cfgAno: any, iso: string): string | null {
 
 function plan(docs: Doc[], tz: string): Note[] {
   const L = localNow(tz), get = (p: string) => docs.find((d) => d.path === p)?.data;
-  const cfg = get("config/main") || {}, r = { leitura: "21:00", treino: "18:00", devocional: "07:00", escrita: "", habitos: true, resumo: true, semana: true, ...(cfg.remind || {}) };
+  const cfg = get("config/main") || {}, r = { leitura: "21:00", treino: "18:00", devocional: "07:00", escrita: "", habitos: true, resumo: true, semana: true, dieta: true, ...(cfg.remind || {}) };
   const goalPages = cfg.goalPages || 20, read = get(`reading/${L.iso}`)?.pages || 0, log = get(`habitlog/${L.iso}`)?.ids || {};
   const habits = docs.filter((d) => d.path.startsWith("habits/")).map((d) => ({ id: d.path.slice(7), ...d.data }))
     .filter((h) => !h.paused && (!h.days?.length || h.days.includes(L.dow)) && (!h.created || h.created <= L.iso));
@@ -61,6 +61,12 @@ function plan(docs: Doc[], tz: string): Note[] {
     out.push({ key: `leitura-${L.iso}`, title: "Hora da leitura", body: read ? `Faltam ${goalPages - read} páginas para a meta de hoje.` : `${goalPages} páginas hoje mantêm a sequência viva.`, url: "./#leitura" });
   if (due(r.treino, L.min) && !trained) out.push({ key: `treino-${L.iso}`, title: "Treino de hoje", body: "Ainda não tem treino registrado hoje. Bora?", url: "./#treino" });
   if (due(r.escrita, L.min) && !wrote) out.push({ key: `escrita-${L.iso}`, title: "Escrever", body: "Poucas linhas já bastam. A pergunta do dia está no app.", url: "./#escrita" });
+  /* dieta: no horário de cada refeição ainda não marcada */
+  const dcfg = get("config/dieta"), dlog = get(`dietalog/${L.iso}`)?.r || {};
+  if (r.dieta !== false && dcfg?.refeicoes) for (const m of dcfg.refeicoes) {
+    const ok = m.dias === "uteis" ? L.dow > 0 && L.dow < 6 : m.dias === "fds" ? L.dow === 0 || L.dow === 6 : true;
+    if (ok && (!m.desde || m.desde <= L.iso) && !dlog[m.id] && due(m.hora, L.min)) out.push({ key: `dieta-${m.id}-${L.iso}`, title: m.nome, body: "Hora da refeição. Depois marque como foi: no plano, fora ou pulei.", url: "./#dieta" });
+  }
   if (r.habitos) for (const h of habits) if (!done(h) && due(h.time, L.min))
     out.push({ key: `habito-${h.id}-${L.iso}`, title: h.name, body: h.target > 1 ? `Meta de hoje: ${h.target}×. Marque no app.` : "Lembrete do seu hábito. Marque quando fizer.", url: "./#habitos" });
   if (r.resumo && due("22:00", L.min)) {
@@ -77,7 +83,7 @@ Deno.serve(async (req) => {
   let sent = 0;
   for (const uid of users) {
     const { data: docs } = await db.from("docs").select("path,data").eq("user_id", uid).eq("deleted", false)
-      .or("path.eq.config/main,path.eq.bible/main,path.eq.plano/ano,path.like.habits/*,path.like.reading/*,path.like.habitlog/*,path.like.workouts/*,path.like.devos/*,path.like.journal/*");
+      .or("path.eq.config/main,path.eq.bible/main,path.eq.plano/ano,path.eq.config/dieta,path.like.dietalog/*,path.like.habits/*,path.like.reading/*,path.like.habitlog/*,path.like.workouts/*,path.like.devos/*,path.like.journal/*");
     const mine = (subs || []).filter((s) => s.user_id === uid);
     const notes = plan((docs || []) as Doc[], mine[0].tz || "America/Sao_Paulo");
     for (const n of notes) {

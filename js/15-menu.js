@@ -46,12 +46,13 @@ function menuTiles() {
     ['leitura', 'Leitura', 'book', '#ff9f0a', b ? `${Math.round(((b.page || 0) / b.pages) * 100)}% de ${b.title}` : 'Nenhum livro em andamento'],
     ['devocional', 'Devocional', 'cross', '#5e5ce6', `${devoStreak()} dias · ${p.lidos}/${p.total} capítulos`],
     ['escrita', 'Escrita', 'pen', '#0a84ff', `${journal().length} entradas · ${escritaStreak()} dias`],
+    ['dieta', 'Dieta', 'food', '#a2845e', (() => { if (!store.doc('config/dieta')) return 'Plano de refeições e água'; const a = adesaoDia(today()); return `${a ? Math.round(a.pct * 100) + '% hoje' : 'Hoje sem marcar'} · ${dietaStreak()} dias seguidos`; })()],
     ['saude', 'Saúde', 'pulse', '#30b0c7', (() => { const p = ultimo('peso'), e = exames()[0]; return [p ? `${fmt(p.v)} kg` : 'Peso e medidas', e ? `exame em ${shortDate(e.date)}` : 'exames de sangue'].join(' · '); })()],
     ['semana', 'Resumo da semana', 'chart', '#ff5a1f', store.doc('semana/' + addDays(segundaDe(today()), [0, 6].includes(dow(today())) ? 0 : -7))?.c ? 'Revisão feita' : 'Números, destaques e revisão'],
     ['metas', 'Metas', 'target', '#bf5af2', gs.length ? `${hit} de ${gs.length} batidas agora` : 'Defina sua primeira meta'],
     ['conquistas', 'Conquistas', 'trophy', '#ff5a1f', `Nível ${g.level.n} · ${g.conq.reduce((a, c) => a + c.tier, 0)} medalhas`],
     ['ajustes', 'Ajustes', 'gear', '#8e8e93', 'Perfil, personalizar, lembretes, conta'],
-  ].filter(([pg]) => !['leitura', 'devocional', 'escrita', 'saude'].includes(pg) || areaOn(pg));
+  ].filter(([pg]) => !['leitura', 'devocional', 'escrita', 'saude', 'dieta'].includes(pg) || areaOn(pg));
 }
 VIEWS.menu = () => `<header class="top"><h1 class="serif">Menu</h1></header>
   <div class="tiles">${menuTiles().map(([pg, nome, icon, cor, sub], i) => `<button class="tile" style="--hc:${cor};--i:${i}" data-page="${pg}"><span class="tile-ic">${ic(icon, 24)}</span><strong class="serif">${nome}</strong><span class="tiny muted">${esc(sub)}</span></button>`).join('')}</div>`;
@@ -67,7 +68,7 @@ VIEWS.ajustes = () => {
       <label>Treinos/semana<input name="goalWorkouts" type="number" min="1" max="14" value="${c.goalWorkouts}"></label></div>
       <label>Descanso entre séries (segundos)<input name="rest" type="number" min="15" max="600" step="15" value="${c.rest}"></label>
       <fieldset><legend>Missão do dia: o que precisa estar feito</legend>${chk('m_habitos', c.missao.habitos, 'Hábitos do dia')}${chk('m_leitura', c.missao.leitura, 'Meta de páginas')}
-        ${chk('m_devocional', c.missao.devocional, 'Devocional ou capítulo da Bíblia')}${chk('m_escrita', c.missao.escrita, 'Escrever no diário')}<p class="tiny muted">O treino sempre vale como bônus.</p></fieldset>
+        ${chk('m_devocional', c.missao.devocional, 'Devocional ou capítulo da Bíblia')}${chk('m_escrita', c.missao.escrita, 'Escrever no diário')}${chk('m_dieta', c.missao.dieta, 'Seguir a dieta (80% das refeições)')}<p class="tiny muted">O treino sempre vale como bônus.</p></fieldset>
       <div class="form-actions"><button class="btn">Salvar</button></div></form>
     <form class="card" data-form="lembretes"><span class="eyebrow">Lembretes</span>
       ${pushOk ? `<p class="tiny muted">${S.pushOn ? 'Notificações ativas neste aparelho.' : 'Ative as notificações neste aparelho para receber os lembretes.'}</p>
@@ -75,14 +76,14 @@ VIEWS.ajustes = () => {
       : `<p class="tiny muted">${LOCAL ? 'Os lembretes chegam depois de conectar o servidor.' : 'Este navegador não recebe notificações. No iPhone, instale o app na tela de início primeiro.'}</p>`}
       <div class="grid2"><label>Devocional<input name="devocional" type="time" value="${esc(r.devocional)}"></label><label>Leitura<input name="leitura" type="time" value="${esc(r.leitura)}"></label>
       <label>Treino<input name="treino" type="time" value="${esc(r.treino)}"></label><label>Escrita<input name="escrita" type="time" value="${esc(r.escrita)}"></label></div>
-      ${chk('habitos', r.habitos, 'Avisar no horário de cada hábito')}${chk('resumo', r.resumo, 'Resumo às 22h se a missão não foi cumprida')}${chk('semana', r.semana !== false, 'Resumo da semana no domingo às 20h')}
+      ${chk('habitos', r.habitos, 'Avisar no horário de cada hábito')}${chk('resumo', r.resumo, 'Resumo às 22h se a missão não foi cumprida')}${chk('semana', r.semana !== false, 'Resumo da semana no domingo às 20h')}${chk('dieta', r.dieta !== false, 'Avisar no horário de cada refeição')}
       <p class="tiny muted">Deixe um horário vazio para não receber aquele lembrete. Só avisa se a tarefa ainda não foi feita.</p>
       <div class="form-actions"><button class="btn">Salvar lembretes</button></div></form>
     <form class="card" data-form="personalizar"><span class="eyebrow">Personalizar</span>
       <fieldset><legend>Cor de destaque</legend><div class="accents">${Object.entries(ACCENTS).map(([k, [nome, a, b]]) => `<label class="accent" style="--a:${a};--b:${b}"><input type="radio" name="accent" value="${k}" ${c.accent === k ? 'checked' : ''}><span></span><small>${nome}</small></label>`).join('')}</div></fieldset>
       <fieldset><legend>Tamanho do texto</legend><div class="seg">${[['normal', 'Normal'], ['grande', 'Grande'], ['maior', 'Maior']].map(([k, n]) => `<label class="seg-op"><input type="radio" name="fonte" value="${k}" ${c.fonte === k ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div></fieldset>
       <fieldset><legend>Áreas que você usa</legend><p class="tiny muted">Áreas desligadas somem do menu, da barra e da missão. Os registros continuam guardados.</p>
-        <div class="toggles">${[['leitura', 'Leitura', 'book'], ['treino', 'Treino', 'gym'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen'], ['saude', 'Saúde', 'pulse']].map(([k, n, i]) => `<label class="tgl">${ic(i, 18)}<span>${n}</span><input type="checkbox" name="a_${k}" ${c.areas[k] ? 'checked' : ''}><i></i></label>`).join('')}</div></fieldset>
+        <div class="toggles">${[['leitura', 'Leitura', 'book'], ['treino', 'Treino', 'gym'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen'], ['dieta', 'Dieta', 'food'], ['saude', 'Saúde', 'pulse']].map(([k, n, i]) => `<label class="tgl">${ic(i, 18)}<span>${n}</span><input type="checkbox" name="a_${k}" ${c.areas[k] ? 'checked' : ''}><i></i></label>`).join('')}</div></fieldset>
       <fieldset><legend>Cartões do Início</legend><div class="toggles">${[['kpis', 'Números da semana'], ['seq', 'Sequência e nível'], ['missao', 'Missão do dia'], ['lendo', 'Livro que estou lendo'], ['metas', 'Metas'], ['verso', 'Versículo do dia']].map(([k, n]) => `<label class="tgl"><span>${n}</span><input type="checkbox" name="i_${k}" ${c.inicio[k] ? 'checked' : ''}><i></i></label>`).join('')}</div></fieldset>
       <div class="form-actions"><button class="btn">Salvar</button></div></form>
     <section class="card"><span class="eyebrow">Aparência</span><div class="seg" role="group" aria-label="Tema">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Escuro']].map(([k, n]) => `<button class="${(S.theme || 'auto') === k ? 'on' : ''}" data-act="tema" data-id="${k}" aria-pressed="${(S.theme || 'auto') === k}">${n}</button>`).join('')}</div></section>
@@ -98,7 +99,7 @@ const ACCENTS = { brasa: ['Brasa', '#ffa21f', '#ff5a1f'], oceano: ['Oceano', '#5
   lavanda: ['Lavanda', '#bf5af2', '#5e5ce6'], rosa: ['Rosa', '#ff8fab', '#ff375f'], grafite: ['Grafite', '#8e8e93', '#3a3a3c'] };
 FORMS.personalizar = (v) => {
   store.merge('config/main', { accent: v.accent || 'brasa', fonte: v.fonte || 'normal',
-    areas: Object.fromEntries(['leitura', 'treino', 'devocional', 'escrita', 'saude'].map((k) => [k, !!v['a_' + k]])),
+    areas: Object.fromEntries(['leitura', 'treino', 'devocional', 'escrita', 'saude', 'dieta'].map((k) => [k, !!v['a_' + k]])),
     inicio: Object.fromEntries(['kpis', 'seq', 'missao', 'lendo', 'metas', 'verso'].map((k) => [k, !!v['i_' + k]])) });
   toast('Do seu jeito. Salvo!');
 };
@@ -112,6 +113,7 @@ const RESET = {
   escrita: ['Escrita', 'pen', ['journal']],
   metas: ['Metas e revisões', 'target', ['goals', 'semana']],
   saude: ['Saúde', 'pulse', ['medidas', 'exames']],
+  dieta: ['Dieta', 'food', ['dietalog', 'config/dieta']],
 };
 function contarArea(k) {
   const pre = RESET[k][2]; let n = 0;
@@ -152,8 +154,8 @@ const b64u = (s) => { const p = '='.repeat((4 - (s.length % 4)) % 4), b = atob((
 Object.assign(FORMS, {
   metasDia: (v) => {
     store.merge('config/main', { goalBooks: Number(v.goalBooks), goalPages: Number(v.goalPages), goalWorkouts: Number(v.goalWorkouts), rest: clamp(Number(v.rest) || 90, 15, 600),
-      missao: { habitos: !!v.m_habitos, leitura: !!v.m_leitura, devocional: !!v.m_devocional, escrita: !!v.m_escrita } });
+      missao: { habitos: !!v.m_habitos, leitura: !!v.m_leitura, devocional: !!v.m_devocional, escrita: !!v.m_escrita, dieta: !!v.m_dieta } });
     toast('Ajustes salvos');
   },
-  lembretes: (v) => { store.merge('config/main', { remind: { leitura: v.leitura, treino: v.treino, devocional: v.devocional, escrita: v.escrita, habitos: !!v.habitos, resumo: !!v.resumo, semana: !!v.semana } }); toast('Lembretes salvos'); },
+  lembretes: (v) => { store.merge('config/main', { remind: { leitura: v.leitura, treino: v.treino, devocional: v.devocional, escrita: v.escrita, habitos: !!v.habitos, resumo: !!v.resumo, semana: !!v.semana, dieta: !!v.dieta } }); toast('Lembretes salvos'); },
 });

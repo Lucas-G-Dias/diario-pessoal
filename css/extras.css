@@ -94,3 +94,33 @@
 .busca-res { margin-top: 8px; min-height: 40vh; }
 .busca-res mark { background: color-mix(in srgb, var(--brand) 25%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
 .saude-hero .row-gap { flex-wrap: wrap; gap: 10px; } .saude-hero .row-gap .btn { flex: 1 1 140px; white-space: nowrap; }
+
+/* dieta */
+.dieta-hero { display: flex; gap: 18px; align-items: center; } .dieta-hero .stats { flex: 1; margin: 0; }
+.ref { padding: 12px 0; border-bottom: 1px solid var(--line); } .ref:last-child { border: 0; padding-bottom: 2px; }
+.ref-h { display: flex; align-items: center; gap: 12px; }
+.ref-hora { font-variant-numeric: tabular-nums; font-size: .95rem; min-width: 48px; padding: 6px 8px; border-radius: 10px; text-align: center; background: var(--fill); }
+.ref.agora .ref-hora { background: #a2845e; color: #fff; }
+.ref.marcada .ref-hora { background: color-mix(in srgb, var(--rc) 18%, transparent); color: var(--rc); }
+.ref-h strong { font-weight: 600; }
+.ref-bts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.ref-bts button { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 9px 4px; border-radius: 12px; background: var(--fill); font-size: .82rem; font-weight: 500; white-space: nowrap; }
+.ref-bts button svg { color: var(--bc); flex: none; }
+.ref-bts button.on { background: var(--bc); color: #fff; box-shadow: 0 4px 12px color-mix(in srgb, var(--bc) 35%, transparent); } .ref-bts button.on svg { color: #fff; }
+.ref.marcada:not(.agora) .ref-bts button:not(.on) { opacity: .55; }
+@media (max-width: 380px) { .ref-bts button { font-size: .74rem; } }
+.copos { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 8px; margin-top: 12px; }
+.copo { aspect-ratio: 1; border-radius: 12px; background: var(--fill); color: var(--faint); display: grid; place-items: center; transition: background .2s, color .2s; }
+.copo.on { background: color-mix(in srgb, #0a84ff 16%, transparent); color: #0a84ff; }
+.dieta-g i.l4 { background: #30b158; } .dieta-g i.l2 { background: #ff9f0a; } .dieta-g i.l1 { background: #ff3b30; } .dieta-g i.vazio { background: var(--fill); }
+.cal-leg .l4 { background: #30b158; } .cal-leg .l2 { background: #ff9f0a; } .cal-leg .l1 { background: #ff3b30; }
+.ref-edit { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.ref-e { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.2fr) auto; gap: 6px; align-items: center; }
+.ref-e input, .ref-e select { margin: 0 !important; padding: 9px 8px !important; font-size: .9rem !important; }
+@media (max-width: 420px) { .ref-e { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; } .ref-e select { grid-column: 1 / 3; grid-row: 2; } }
+
+/* anéis da missão: se ajustam à largura (até 6 áreas) */
+.mrings { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 6px; }
+.mring { min-width: 0; } .mring > span:last-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mring .ring-wrap { width: min(58px, 100%) !important; height: auto !important; aspect-ratio: 1; transform: none !important; }
+.mring .ring-wrap svg.ring { width: 100%; height: 100%; }

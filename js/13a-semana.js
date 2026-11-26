@@ -14,6 +14,7 @@ function destaquesSemana(P) {
   if (lidos.length) out.push(['book', `Livro terminado: <b>${lidos.map((b) => esc(b.title)).join(', ')}</b>`]);
   const metas = goals().filter((g) => g.period === 'semana' && goalStatus(g, P).hit);
   if (metas.length) out.push(['target', `Meta da semana batida: ${metas.map((g) => esc(goalTitle(g))).join(', ')}`]);
+  const ad = store.doc('config/dieta') ? adesaoPeriodo(pastDays(P)) : null; if (ad != null) out.push(['food', `Dieta: <b>${Math.round(ad * 100)}%</b> de adesão${maisEscapa() ? ` · o que mais escapa: ${esc(maisEscapa().nome)}` : ''}`]);
   const humor = journal().filter((j) => j.date >= P.start && j.date <= P.end && j.mood);
   if (humor.length) { const m = Math.round(humor.reduce((a, j) => a + j.mood, 0) / humor.length); out.push(['pen', `Humor médio: <b>${MOODS[m - 1][0]}</b>`]); }
   return out;
@@ -33,7 +34,7 @@ VIEWS.semana = () => {
       <div class="sem-dias">${dias.map((d) => { const n = act.get(d)?.size || 0; return `<div class="${d === today() ? 'hoje' : ''} ${d > today() ? 'futuro' : ''}"><span>${DIAS_C[dow(d)]}</span><i class="l${Math.min(4, n)}"></i></div>`; }).join('')}</div>
       <p class="tiny muted">${nota >= 80 ? 'Semana forte. Constância é isso.' : nota >= 50 ? 'Boa semana. Dá para ajustar uma coisa ou outra.' : 'Semana difícil acontece. O que importa é a próxima.'}</p></div></section>
     <section class="card"><span class="eyebrow">Comparado à semana anterior</span><div class="stats three" style="margin-top:12px">${cel(pct(s), 'dos hábitos', pct(a), '%')}${areaOn('treino') ? cel(s.treinos, 'treinos', a.treinos) : ''}
-      ${areaOn('leitura') ? cel(s.pages, 'páginas', a.pages) : ''}${areaOn('devocional') ? cel(s.devos, 'devocionais', a.devos) : ''}${areaOn('escrita') ? cel(s.entradas, 'entradas no diário', a.entradas) : ''}${cel(s.full, 'dias perfeitos', a.full)}</div></section>
+      ${areaOn('leitura') ? cel(s.pages, 'páginas', a.pages) : ''}${areaOn('devocional') ? cel(s.devos, 'devocionais', a.devos) : ''}${areaOn('escrita') ? cel(s.entradas, 'entradas no diário', a.entradas) : ''}${areaOn('dieta') && store.doc('config/dieta') ? cel(s.dieta == null ? null : Math.round(s.dieta * 100), 'de adesão à dieta', a.dieta == null ? null : Math.round(a.dieta * 100), '%') : ''}${cel(s.full, 'dias perfeitos', a.full)}</div></section>
     ${dest.length ? `<section class="card"><span class="eyebrow">Destaques</span>${dest.map(([i, t]) => `<div class="pr-row static">${ic(i, 18)}<span class="grow">${t}</span></div>`).join('')}</section>` : ''}
     <form class="card" data-form="revisao" data-id="${seg}"><span class="eyebrow">Revisão da semana${R.c ? ' · feita' : ` · +${XP.revisao} XP`}</span>
       <label>O que funcionou?<textarea name="funcionou" rows="2" placeholder="Ex.: treinar de manhã cedo">${esc(R.funcionou || '')}</textarea></label>

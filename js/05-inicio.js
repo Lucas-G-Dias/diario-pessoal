@@ -1,5 +1,5 @@
 /* ============ Início: o painel do dia ============ */
-const AREA_PAGE = { habitos: 'habitos', leitura: 'leitura', devocional: 'devocional', escrita: 'escrita', treino: 'treino' };
+const AREA_PAGE = { habitos: 'habitos', leitura: 'leitura', devocional: 'devocional', escrita: 'escrita', treino: 'treino', dieta: 'dieta' };
 
 function heroCard(g) {
   const L = g.level, esc3 = Array.from({ length: 3 }, (_, i) => `<span class="shield ${i < g.shields ? 'on' : ''}" title="Escudo">${ic('shield', 15)}</span>`).join('');

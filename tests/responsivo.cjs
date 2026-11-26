@@ -4,14 +4,14 @@ const { chromium } = require('playwright');
 const OUT = process.argv[2] || '/tmp'; // pasta para os prints (opcional)
 const URL_APP = process.argv[3] || 'http://localhost:8765/';
 const WIDTHS = [360, 390, 768, 1024, 1280, 1440];
-const PAGES = ['inicio', 'habitos', 'treino', 'leitura', 'devocional', 'escrita', 'saude', 'semana', 'metas', 'conquistas', 'menu', 'ajustes', 'ano', 'sessao'];
+const PAGES = ['inicio', 'habitos', 'treino', 'leitura', 'devocional', 'escrita', 'saude', 'dieta', 'semana', 'metas', 'conquistas', 'menu', 'ajustes', 'ano', 'sessao'];
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 860 } });
   const errs = []; p.on('pageerror', (e) => errs.push('pageerror ' + e.message));
   await p.route('**/js/00-config.js', (r) => r.fulfill({ contentType: 'text/javascript', body: "const SB_URL='',SB_KEY='',VAPID='';" }));
   await p.goto(URL_APP); await p.waitForTimeout(900);
   await p.evaluate(() => {
-    const t = today(), W = (k, v) => store.set(k, v, true); W('config/main', { name: 'Lucas Dias', birth: '1995-03-10', tourDone: true, altura: 178 }); W('medidas/m1', { date: addDays(t, -9), peso: 82 }); W('medidas/m2', { date: t, peso: 81.4 }); W('exames/e1', { date: t, lab: 'Fleury', itens: { glicose: 92, ldl: 140 } });
+    const t = today(), W = (k, v) => store.set(k, v, true); W('config/main', { name: 'Lucas Dias', birth: '1995-03-10', tourDone: true, altura: 178 }); W('medidas/m1', { date: addDays(t, -9), peso: 82 }); W('medidas/m2', { date: t, peso: 81.4 }); W('exames/e1', { date: t, lab: 'Fleury', itens: { glicose: 92, ldl: 140 } }); W('config/dieta', { refeicoes: DIETA_PADRAO.map(([id, nome, hora]) => ({ id, nome, hora, dias: 'todos' })), agua: 8, desde: addDays(t, -5) }); W('dietalog/' + t, { r: { cafe: 'ok', lanche1: 'fora' }, agua: 3 });
     [['O Temor do sábio', 'Patrick Rothfuss', 1000, 'lendo', 340], ['O nome do vento', 'Patrick Rothfuss', 656, 'lido', 656], ['Hábitos Atômicos', 'James Clear', 320, 'quero', 0], ['A Meta', 'Eliyahu Goldratt', 400, 'quero', 0]]
       .forEach(([title, author, pages, status, page], i) => W('books/b' + i, { title, author, pages, status, page, color: SPINES[(i * 3) % 10], updated: 10 - i, finished: status === 'lido' ? addDays(t, -5) : '' }));
     W('habits/h1', { name: 'Beber água', days: [], target: 8, color: HCORES[3], created: addDays(t, -40) }); W('habits/h2', { name: 'Meditar 10 minutos todos os dias pela manhã', days: [], color: HCORES[0], created: addDays(t, -40) });

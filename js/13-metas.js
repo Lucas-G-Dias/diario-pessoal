@@ -31,7 +31,7 @@ function statsOf(P) {
   const s = { treinos: ws.length, min: ws.reduce((a, w) => a + (Number(w.min) || 0), 0), volume: ws.reduce((a, w) => a + (w.volume || 0), 0), pages, full, days: days.length,
     livros: books().filter((b) => b.status === 'lido' && inP(b.finished)).length, hab: habitRate(habits(), days),
     devos: devos().filter((d) => inP(d.date)).length, caps: Object.values(bibleRead()).filter(inP).length,
-    entradas: js.length, palavras: js.reduce((a, j) => a + (j.words || 0), 0) };
+    entradas: js.length, palavras: js.reduce((a, j) => a + (j.words || 0), 0), dieta: adesaoPeriodo(days) };
   STATS.set(ck, s); return s;
 }
 
@@ -47,6 +47,7 @@ const KINDS = {
   capitulos: { label: 'Capítulos da Bíblia', unit: 'capítulos', val: (s) => s.caps },
   diario: { label: 'Entradas no diário', unit: 'entradas no diário', val: (s) => s.entradas },
   palavras: { label: 'Palavras escritas', unit: 'palavras', val: (s) => s.palavras },
+  dieta: { label: '% de adesão à dieta', pct: true, val: (s) => (s.dieta == null ? 0 : Math.round(s.dieta * 100)) },
   manual: { label: 'Outra (eu conto)', unit: '', val: (s, g, P) => (g.progress || {})[P.key] || 0 },
 };
 const PERIODOS = { semana: 'por semana', mes: 'por mês', ano: 'no ano' };

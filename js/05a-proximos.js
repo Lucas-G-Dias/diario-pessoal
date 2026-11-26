@@ -23,6 +23,10 @@ function proximosPassos() {
       add('treino', 'gym', AREAS.treino[2], prox ? `Treinar: ${prox.name}` : 'Treinar hoje', `${sem} de ${c.goalWorkouts} treinos na semana`, prox ? 'iniciarTreino' : '', prox?.id || '', prox ? '' : 'treino'); }
   }
   if (areaOn('escrita') && c.missao.escrita && !journalOn(t)) add('escrita', 'pen', AREAS.escrita[2], 'Escrever no diário', esc(perguntaDoDia()), 'novaEntrada', 'prompt');
+  // dieta: refeição da hora sem marcar
+  const rf = areaOn('dieta') && store.doc('config/dieta') ? proximaRefeicao() : null;
+  if (rf) add('dieta', 'food', AREAS.dieta[2], `${rf.nome} às ${rf.hora}`, 'Marque como foi: no plano, fora ou pulei', '', '', 'dieta');
+  if (areaOn('dieta') && !store.doc('config/dieta')) add('dieta', 'food', AREAS.dieta[2], 'Montar seu plano de refeições', 'Horários de cada refeição, para marcar no dia', 'dietaPlano');
   // saúde: peso há mais de 7 dias
   const p = areaOn('saude') ? ultimo('peso') : null;
   if (areaOn('saude') && (!p || p.d < addDays(t, -7))) add('saude', 'pulse', AREAS.saude[2], 'Registrar o peso', p ? `Último em ${shortDate(p.d)}: ${fmt(p.v)} kg` : 'Comece a acompanhar sua evolução', 'novaMedida');
@@ -44,7 +48,7 @@ function proximosCard() {
 /* atalhos para todas as áreas (carrossel no celular) */
 function atalhos() {
   const it = [['habitos', 'Hábitos', 'habit'], ['treino', 'Treino', 'gym'], ['leitura', 'Leitura', 'book'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen'],
-    ['saude', 'Saúde', 'pulse'], ['metas', 'Metas', 'target'], ['semana', 'Semana', 'chart'], ['conquistas', 'Conquistas', 'trophy']]
-    .filter(([k]) => !['treino', 'leitura', 'devocional', 'escrita', 'saude'].includes(k) || areaOn(k));
+    ['dieta', 'Dieta', 'food'], ['saude', 'Saúde', 'pulse'], ['metas', 'Metas', 'target'], ['semana', 'Semana', 'chart'], ['conquistas', 'Conquistas', 'trophy']]
+    .filter(([k]) => !['treino', 'leitura', 'devocional', 'escrita', 'saude', 'dieta'].includes(k) || areaOn(k));
   return `<nav class="atalhos" aria-label="Áreas">${it.map(([k, n, i]) => `<button data-page="${k}" style="--hc:${(AREAS[k] || AREAS.bonus)[2]}"><span>${ic(i, 20)}</span>${n}</button>`).join('')}</nav>`;
 }
