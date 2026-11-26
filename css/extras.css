@@ -163,3 +163,17 @@
 .lc-tip[hidden] { display: none !important; }
 .lchart .cursor, .lchart .cur-pt { opacity: 0; transition: opacity .15s; }
 .lchart.ativo .cursor, .lchart.ativo .cur-pt { opacity: 1; }
+/* dieta: editar plano na tela e refeições no Início */
+.row-gap.tight { display: flex; gap: 6px; align-items: center; }
+.seg.modelos { margin: 8px 0 12px; } .seg.modelos button { font-size: .82rem; padding: 7px 4px; white-space: nowrap; }
+.pe-lista { display: grid; gap: 8px; margin-bottom: 12px; }
+.pe-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) minmax(0, 1fr) 38px; grid-template-areas: "ic nome nome del" "ic hora dias del"; gap: 8px; align-items: center; padding: 8px; border-radius: 14px; background: var(--fill); }
+.pe-row > .tl-ic { grid-area: ic; display: grid; align-self: start; } .pe-row > [data-id$=":nome"] { grid-area: nome; } .pe-row > [type=time] { grid-area: hora; } .pe-row > select { grid-area: dias; } .pe-row > .pe-del { grid-area: del; }
+.pe-row input, .pe-row select { margin: 0; width: 100%; min-width: 0; padding: 8px 10px; font-size: .9rem; }
+.pe-del { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; color: var(--red, #ff3b30); background: rgba(255, 59, 48, .1); }
+.pe-del:hover { background: rgba(255, 59, 48, .18); }
+.btn.wide { width: 100%; justify-content: center; margin-top: 10px; }
+@media (max-width: 560px) {
+  .seg.modelos button { font-size: .74rem; }
+}
+.dieta-inicio .tl { margin-top: 10px; }

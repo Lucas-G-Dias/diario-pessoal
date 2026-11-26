@@ -24,7 +24,7 @@ function proximosPassos() {
   }
   if (areaOn('escrita') && c.missao.escrita && !journalOn(t)) add('escrita', 'pen', AREAS.escrita[2], 'Escrever no diário', esc(perguntaDoDia()), 'novaEntrada', 'prompt');
   // dieta: refeição da hora sem marcar
-  const rf = areaOn('dieta') && store.doc('config/dieta') ? proximaRefeicao() : null;
+  const rf = areaOn('dieta') && store.doc('config/dieta') && !cfg().inicio.dieta ? proximaRefeicao() : null;
   if (rf) add('dieta', 'food', AREAS.dieta[2], `${rf.nome} às ${rf.hora}`, 'Marque como foi: no plano, fora ou pulei', '', '', 'dieta');
   if (areaOn('dieta') && !store.doc('config/dieta')) add('dieta', 'food', AREAS.dieta[2], 'Montar seu plano de refeições', 'Horários de cada refeição, para marcar no dia', 'refNova');
   // saúde: peso há mais de 7 dias

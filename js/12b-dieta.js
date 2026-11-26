@@ -43,28 +43,42 @@ function maisEscapa() {
 /* próxima refeição sem marcar (já passou da hora ou vem na próxima hora) */
 function proximaRefeicao() { const t = today(), L = dietaLog(t), now = agoraMin(); return refsDoDia(t).find((r) => !L.r[r.id] && hm(r.hora) <= now + 60) || null; }
 
-VIEWS.dieta = () => {
-  const t = today(), L = dietaLog(t), rs = refsDoDia(t), c = dietaCfg(), now = agoraMin(), a = adesaoDia(t);
-  const sem = adesaoPeriodo(lastDays(7)), mes = adesaoPeriodo(pastDays(periodOf('mes'))), escapa = maisEscapa(), copos = L.agua || 0;
-  const marcadas = rs.filter((r) => L.r[r.id]).length, prox = rs.find((r) => !L.r[r.id] && hm(r.hora) >= now - 90);
-  const pct = (v) => (v == null ? '—' : Math.round(v * 100) + '%');
-  /* linha do tempo: cada refeição é um cartão; o marcador "agora" entra entre elas */
+/* linha do tempo das refeições de hoje (usada na Dieta e no Início) */
+function refsTimeline(t = today()) {
+  const L = dietaLog(t), rs = refsDoDia(t), now = agoraMin(), prox = rs.find((r) => !L.r[r.id] && hm(r.hora) >= now - 90);
   let agoraPos = rs.findIndex((r) => hm(r.hora) > now); if (agoraPos < 0) agoraPos = rs.length;
+  const agora = `<div class="tl-now"><span>agora · ${pad(Math.floor(now / 60))}:${pad(now % 60)}</span></div>`;
   const item = (r, i) => { const s = L.r[r.id], st = ST_DIETA[s];
     return `<div class="tl-i ${s ? 'feito ' + s : hm(r.hora) <= now ? 'atras' : ''} ${prox === r ? 'agora' : ''}" style="--rc:${st ? st[2] : 'var(--faint)'};--i:${i}">
       <div class="tl-hora">${r.hora}</div><div class="tl-dot">${st ? ic(st[1], 12) : ''}</div>
       <div class="tl-card"><button class="tl-main" data-act="refAbrir" data-id="${r.id}" aria-label="${esc(r.nome)}: abrir"><span class="tl-ic">${ic(refIcon(r), 18)}</span>
         <span class="grow"><b>${esc(r.nome)}</b><span class="tiny muted">${st ? st[0] : prox === r ? (hm(r.hora) <= now ? 'Agora' : 'Próxima') : hm(r.hora) <= now ? 'Sem marcar' : 'Mais tarde'}${L.notas?.[r.id] ? ' · ' + esc(L.notas[r.id]) : ''}</span></span></button>
         <div class="tl-bts" role="group" aria-label="Como foi ${esc(r.nome)}">${Object.entries(ST_DIETA).map(([k, [n, ico, cor]]) => `<button class="${s === k ? 'on' : ''}" style="--bc:${cor}" data-act="dietaMarcar" data-id="${r.id}:${k}" aria-pressed="${s === k}" title="${n}" aria-label="${n}">${ic(ico, 16)}</button>`).join('')}</div></div></div>`; };
-  const linha = rs.map((r, i) => (i === agoraPos ? `<div class="tl-now"><span>agora · ${pad(Math.floor(now / 60))}:${pad(now % 60)}</span></div>` : '') + item(r, i)).join('') + (agoraPos === rs.length && rs.length ? `<div class="tl-now"><span>agora · ${pad(Math.floor(now / 60))}:${pad(now % 60)}</span></div>` : '');
+  return rs.map((r, i) => (i === agoraPos ? agora : '') + item(r, i)).join('') + (agoraPos === rs.length && rs.length ? agora : '');
+}
+
+/* cartão do Início: marcar as refeições sem sair da tela */
+function dietaHoje() {
+  const t = today(), rs = refsDoDia(t), L = dietaLog(t), feitas = rs.filter((r) => L.r[r.id]).length;
+  if (!rs.length) return '';
+  return `<section class="card refs dieta-inicio"><div class="row-between"><span class="eyebrow">Refeições de hoje · ${feitas}/${rs.length}</span><button class="link" data-page="dieta">Dieta ${ic('chev', 12)}</button></div>
+    ${progressBar(feitas / rs.length, 'dieta')}<div class="tl">${refsTimeline(t)}</div></section>`;
+}
+
+VIEWS.dieta = () => {
+  const t = today(), L = dietaLog(t), rs = refsDoDia(t), c = dietaCfg(), now = agoraMin(), a = adesaoDia(t);
+  const sem = adesaoPeriodo(lastDays(7)), mes = adesaoPeriodo(pastDays(periodOf('mes'))), escapa = maisEscapa(), copos = L.agua || 0;
+  const marcadas = rs.filter((r) => L.r[r.id]).length;
+  const pct = (v) => (v == null ? '—' : Math.round(v * 100) + '%');
   const grade = lastDays(28).map((d) => { const x = adesaoDia(d); return `<i class="${!x ? 'vazio' : x.pct >= 0.8 ? 'l4' : x.pct >= 0.5 ? 'l2' : 'l1'} ${d === t ? 'today' : ''}" title="${shortDate(d)}: ${x ? Math.round(x.pct * 100) + '%' : 'sem registro'}"></i>`; }).join('');
   return `<header class="top"><div><span class="eyebrow">${longDate(t)}</span><h1>Dieta</h1></div><button class="btn-sm" data-act="dietaAjustes">${ic('gear', 14)} Ajustes</button></header>
     <section class="card dieta-hero">${ring(a ? a.pct : 0, AREAS.dieta[2], 96, `<b>${a ? Math.round(a.pct * 100) + '%' : '—'}</b><small>até agora</small>`)}
       <div class="stats three"><div><b>${pct(sem)}</b><span>últimos 7 dias</span></div><div><b>${pct(mes)}</b><span>no mês</span></div><div><b>${dietaStreak()}</b><span>dias seguidos</span></div></div></section>
-    <section class="card refs"><div class="row-between"><span class="eyebrow">Refeições de hoje · ${marcadas}/${rs.length}</span><button class="btn-sm" data-act="refNova">${ic('plus', 14)} Refeição</button></div>
+    ${S.dietaEdit ? planoEditor() : `<section class="card refs"><div class="row-between"><span class="eyebrow">Refeições de hoje · ${marcadas}/${rs.length}</span>
+      <div class="row-gap tight"><button class="btn-sm ghost" data-act="dietaEditar">${ic('edit', 14)} Editar plano</button><button class="btn-sm" data-act="refNova">${ic('plus', 14)}</button></div></div>
       ${progressBar(rs.length ? marcadas / rs.length : 0, 'dieta')}
-      <div class="tl">${rs.length ? linha : '<p class="tiny muted">Nenhuma refeição para hoje. Toque em "+ Refeição" para montar seu plano.</p>'}</div>
-      <p class="tiny muted tl-dica">Toque numa refeição para anotar, mudar nome, horário, dias e ícone, ou apagar.</p></section>
+      <div class="tl">${rs.length ? refsTimeline(t) : '<p class="tiny muted">Nenhuma refeição para hoje. Toque em "Editar plano" para montar o seu.</p>'}</div>
+      <p class="tiny muted tl-dica">Toque numa refeição para anotar ou ajustar. Para apagar ou trocar refeições, use "Editar plano".</p></section>`}
     <section class="card agua"><div class="row-between"><span class="eyebrow">Água · ${copos} de ${c.agua} copos</span><span class="tiny muted">${fmt(copos * 0.25)} L de ${fmt(c.agua * 0.25)} L</span></div>
       ${progressBar(copos / c.agua, 'agua')}<div class="copos">${Array.from({ length: Math.max(c.agua, copos) }, (_, i) => `<button class="copo ${i < copos ? 'on' : ''}" data-act="dietaAgua" data-id="${i < copos ? i : i + 1}" aria-label="${i + 1} ${i ? 'copos' : 'copo'}">${ic('drop', 20)}</button>`).join('')}
       <button class="copo mais" data-act="dietaAgua" data-id="${copos + 1}" aria-label="Mais um copo">${ic('plus', 16)}</button></div></section>

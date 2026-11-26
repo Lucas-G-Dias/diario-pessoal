@@ -14,7 +14,7 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/04-efeitos.js` | XP flutuante, confete, vibração, bipe, anel `ring()`, medalha `medalSVG()`, `progressBar()` |
 | `js/04a-grafico.js` | `lineChart()` gráfico de linha interativo (toque/mouse mostra o ponto), usado em Saúde e exercícios |
 | `js/05a-proximos.js` | Início: "Próximos passos" (o que fazer agora, com um toque) e atalhos das áreas |
-| `js/05-inicio.js` | Início: selo da sequência, anéis da missão, hábitos do dia, leitura, metas, versículo |
+| `js/05-inicio.js` | Início: refeições de hoje (`dietaHoje()`, liga/desliga em `inicio.dieta`), selo da sequência, anéis da missão, hábitos do dia, leitura, metas, versículo |
 | `js/06-habitos.js` | hábitos simples e com contagem, força do hábito, % hoje/7 dias/mês, pausar/retomar |
 | `js/07-treino.js` | biblioteca `EXS`, 1RM (Epley), histórico por exercício, séries por músculo, recordes, aba Treino |
 | `js/07a-animacoes.js` | boneco animado (SVG) por padrão de movimento (`MOV`, `EX_MOV`) e dicas de execução |
@@ -29,7 +29,7 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/11b-ano-acoes.js` | ações do plano anual: concluir (cria `devos/` e marca `bible/main`), reorganizar, calendário, livros |
 | `js/12a-saude.js` | Saúde: peso, medidas, pressão (`medidas/`), exames de sangue com faixas de referência (`exames/`, `EXAMES`) |
 | `js/12b-dieta.js` | Dieta: plano de refeições (`config/dieta`), marcar no plano/fora/pulei por dia (`dietalog/<dia>`), água, adesão (no plano 1, fora 0,5, pulei 0) |
-| `js/12c-dieta-editar.js` | Dieta: folha de cada refeição (marcar, anotar, editar nome/horário/dias/ícone, apagar), nova refeição, ajustes (água, voltar ao modelo) |
+| `js/12c-dieta-editar.js` | Dieta: folha de cada refeição (marcar, anotar, editar, apagar), nova refeição, ajustes, modo "Editar plano" (`planoEditor()`, `S.dietaEdit`: linhas editáveis com lixeira, modelos de 3 a 6 refeições `MODELOS_DIETA`) |
 | `js/12-escrita.js` | diário: humor, gratidão, pergunta do dia, contagem de palavras |
 | `js/13-metas.js` | metas (repetem por semana/mês/ano), `statsOf(período)`, relatório mês a mês, barras de 6 meses |
 | `js/13a-semana.js` | Resumo da semana: comparação, destaques, revisão (`semana/<segunda>`) e foco da semana |

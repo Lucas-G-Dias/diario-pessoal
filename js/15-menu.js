@@ -84,7 +84,7 @@ VIEWS.ajustes = () => {
       <fieldset><legend>Tamanho do texto</legend><div class="seg">${[['normal', 'Normal'], ['grande', 'Grande'], ['maior', 'Maior']].map(([k, n]) => `<label class="seg-op"><input type="radio" name="fonte" value="${k}" ${c.fonte === k ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div></fieldset>
       <fieldset><legend>Áreas que você usa</legend><p class="tiny muted">Áreas desligadas somem do menu, da barra e da missão. Os registros continuam guardados.</p>
         <div class="toggles">${[['leitura', 'Leitura', 'book'], ['treino', 'Treino', 'gym'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen'], ['dieta', 'Dieta', 'food'], ['saude', 'Saúde', 'pulse']].map(([k, n, i]) => `<label class="tgl">${ic(i, 18)}<span>${n}</span><input type="checkbox" name="a_${k}" ${c.areas[k] ? 'checked' : ''}><i></i></label>`).join('')}</div></fieldset>
-      <fieldset><legend>Cartões do Início</legend><div class="toggles">${[['kpis', 'Números da semana'], ['seq', 'Sequência e nível'], ['missao', 'Missão do dia'], ['lendo', 'Livro que estou lendo'], ['metas', 'Metas'], ['verso', 'Versículo do dia']].map(([k, n]) => `<label class="tgl"><span>${n}</span><input type="checkbox" name="i_${k}" ${c.inicio[k] ? 'checked' : ''}><i></i></label>`).join('')}</div></fieldset>
+      <fieldset><legend>Cartões do Início</legend><div class="toggles">${[['kpis', 'Números da semana'], ['seq', 'Sequência e nível'], ['missao', 'Missão do dia'], ['dieta', 'Refeições de hoje'], ['lendo', 'Livro que estou lendo'], ['metas', 'Metas'], ['verso', 'Versículo do dia']].map(([k, n]) => `<label class="tgl"><span>${n}</span><input type="checkbox" name="i_${k}" ${c.inicio[k] ? 'checked' : ''}><i></i></label>`).join('')}</div></fieldset>
       <div class="form-actions"><button class="btn">Salvar</button></div></form>
     <section class="card"><span class="eyebrow">Aparência</span><div class="seg" role="group" aria-label="Tema">${[['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Escuro']].map(([k, n]) => `<button class="${(S.theme || 'auto') === k ? 'on' : ''}" data-act="tema" data-id="${k}" aria-pressed="${(S.theme || 'auto') === k}">${n}</button>`).join('')}</div></section>
     <section class="card"><span class="eyebrow">Recomeçar</span><p class="tiny muted">Apaga os registros de uma área para começar do zero. Seu perfil e seus ajustes continuam. Baixe um backup antes, se quiser guardar.</p>
@@ -100,7 +100,7 @@ const ACCENTS = { brasa: ['Brasa', '#ffa21f', '#ff5a1f'], oceano: ['Oceano', '#5
 FORMS.personalizar = (v) => {
   store.merge('config/main', { accent: v.accent || 'brasa', fonte: v.fonte || 'normal',
     areas: Object.fromEntries(['leitura', 'treino', 'devocional', 'escrita', 'saude', 'dieta'].map((k) => [k, !!v['a_' + k]])),
-    inicio: Object.fromEntries(['kpis', 'seq', 'missao', 'lendo', 'metas', 'verso'].map((k) => [k, !!v['i_' + k]])) });
+    inicio: Object.fromEntries(['kpis', 'seq', 'missao', 'dieta', 'lendo', 'metas', 'verso'].map((k) => [k, !!v['i_' + k]])) });
   toast('Do seu jeito. Salvo!');
 };
 
