@@ -92,7 +92,7 @@ VIEWS.ajustes = () => {
       <button class="btn ghost danger wide" data-act="resetar" data-id="tudo">${ic('trash', 16)} Apagar tudo e recomeçar</button></section>
     <section class="card"><span class="eyebrow">Conta</span>
       <p class="muted">${LOCAL ? 'Modo local: os dados ficam só neste aparelho.' : `Conectado como <b>${esc(S.user?.email)}</b>`}${store.outbox.length ? ` · ${store.outbox.length} alteração(ões) aguardando internet` : ''}</p>
-      <div class="form-actions start"><button class="btn ghost" data-act="verTour">Ver o tour de novo</button><button class="btn ghost" data-act="exportar">Baixar backup</button><label class="btn ghost">Restaurar backup<input type="file" accept="application/json,.json" data-chg="restaurar" hidden></label>${LOCAL ? '' : `<button class="btn ghost danger" data-act="sair">${ic('out', 16)} Sair</button>`}</div></section>`;
+      <div class="form-actions start"><button class="btn ghost" data-act="verTour">Ver o tour de novo</button><button class="btn ghost" data-act="exportar">Baixar backup</button><label class="btn ghost">Restaurar backup<input type="file" accept="application/json,.json" data-chg="restaurar" hidden></label>${LOCAL ? '' : `<button class="btn ghost" data-act="trocarSenha">${ic('lock', 16)} Trocar senha</button><button class="btn ghost danger" data-act="sair">${ic('out', 16)} Sair</button>`}</div></section>`;
 };
 
 const ACCENTS = { brasa: ['Brasa', '#ffa21f', '#ff5a1f'], oceano: ['Oceano', '#5ac8fa', '#0a84ff'], floresta: ['Floresta', '#a8e063', '#30b158'],
@@ -137,7 +137,7 @@ Object.assign(ACT, {
     const blob = new Blob([JSON.stringify(store.docs, null, 1)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ritmo-backup-${today()}.json`; a.click();
   },
-  sair: async () => { if (!confirm('Sair desta conta neste aparelho?')) return; await sb.auth.signOut(); localStorage.removeItem(store.key()); location.reload(); },
+  sair: async () => { if (!confirm('Sair da conta? Isso desconecta todos os aparelhos.')) return; await sb.auth.signOut(); localStorage.removeItem(store.key()); location.reload(); },
   ativarPush: async () => {
     try {
       if (await Notification.requestPermission() !== 'granted') { toast('Permissão negada nas configurações do navegador'); return; }

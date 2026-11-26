@@ -37,6 +37,7 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/15-menu.js` | Menu (todas as áreas), Perfil (foto, nome, aniversário, frase; `avatarHTML()`) e Ajustes |
 | `js/15a-extras.js` | arrastar para reordenar (`data-sort` + `data-sid` + `.drag`, campo `ord`), restaurar backup, busca em tudo |
 | `js/15b-tour.js` | tour de boas-vindas (um cartão por área, `config/main.tourDone`) |
+| `js/15c-conta.js` | conta: erros do login em português sem revelar se o e-mail existe (`erroAuth()`), tela de senha nova ao abrir o link de redefinir (`S.recuperar`, evento `PASSWORD_RECOVERY`), "Trocar senha" em Ajustes com opção de sair dos outros aparelhos |
 | `js/16-boot.js` | `render()` com transição, navegação, folha de baixo, eventos, relógio de 1 s, início (sempre o último) |
 | `css/base.css` · `telas.css` · `areas.css` · `motion.css` · `extras.css` · `mobile.css` | tokens, personalização e formulários · casca/Início/Hábitos/Metas · demais áreas · animações · celular e tablet (< 1024 px) |
 | `icons/` · `docs/marca.html` | logo (`logo.svg`, PNGs do ícone) e guia da identidade visual |

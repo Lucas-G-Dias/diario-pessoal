@@ -25,6 +25,7 @@ function render() {
   const app = $('#app');
   if (S.auth === 'loading') { app.innerHTML = `<div class="loading">${LOGO(72)}<span>${APP}</span></div>`; return; }
   if (S.auth === 'out') { app.innerHTML = loginView(); return; }
+  if (S.recuperar) { app.innerHTML = novaSenhaView(); return; }
   const view = VIEWS[S.page] || VIEWS.inicio, novo = S.page !== S.lastPage, y = novo ? 0 : scrollY, ativo = NAV_DE[S.page] || S.page, g = game();
   S.lastPage = S.page;
   const tr = areaOn('treino') ? NAV[3] : [['leitura', 'Leitura', 'book'], ['devocional', 'Devocional', 'cross'], ['escrita', 'Escrita', 'pen']].find(([k]) => areaOn(k)) || ['metas', 'Metas', 'target'];
@@ -58,7 +59,7 @@ FORMS.login = async (v) => {
   S.authErr = '';
   const fn = S.authMode === 'criar' ? sb.auth.signUp({ email: v.email, password: v.password }) : sb.auth.signInWithPassword({ email: v.email, password: v.password });
   const { data, error } = await fn;
-  if (error) { S.authErr = /invalid/i.test(error.message) ? 'E-mail ou senha incorretos.' : error.message; render(); return; }
+  if (error) { S.authErr = erroAuth(error); render(); return; }
   if (!data.session) { S.authErr = 'Conta criada. Confirme pelo link que chegou no seu e-mail e depois entre.'; S.authMode = ''; render(); }
 };
 
@@ -78,8 +79,8 @@ Object.assign(ACT, {
   esqueci: async () => {
     const email = $('form[data-form="login"] [name=email]').value;
     if (!email) { S.authErr = 'Digite seu e-mail acima primeiro.'; render(); return; }
-    await sb.auth.resetPasswordForEmail(email, { redirectTo: location.href.split('#')[0] });
-    S.authErr = 'Enviamos um link para redefinir a senha.'; render();
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.href.split('#')[0] });
+    S.authErr = error && /rate limit|too many|429/i.test(error.message + error.status) ? erroAuth(error) : 'Se esse e-mail tiver conta, vai chegar um link para criar uma senha nova. Confira também o spam.'; render();
   },
   rapido: () => {
     const lendo = books().find((b) => b.status === 'lendo'), tr = store.doc('session/treino');
@@ -132,6 +133,7 @@ async function boot() {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
   if (LOCAL) { S.auth = 'in'; store.load(); render(); celebrate(); return; }
   sb.auth.onAuthStateChange((ev, session) => {
+    if (ev === 'PASSWORD_RECOVERY') S.recuperar = true;
     const was = S.user?.id; S.user = session?.user || null; S.auth = S.user ? 'in' : 'out';
     if (S.user && S.user.id !== was) { store.load(); store.flush(); store.pull(); }
     render();

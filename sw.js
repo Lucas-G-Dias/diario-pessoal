@@ -1,8 +1,8 @@
 // Ritmo: funciona offline e recebe os lembretes
-const CACHE = 'ritmo-v12';
+const CACHE = 'ritmo-v13';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/favicon.svg', './icons/logo.svg', './icons/icon-192.png', './icons/apple-touch-icon.png', './vendor/supabase.js',
   './css/base.css', './css/telas.css', './css/areas.css', './css/motion.css', './css/extras.css', './css/mobile.css',
-  './js/00-config.js', './js/01-base.js', './js/02-dados.js', './js/03-jogo.js', './js/04-efeitos.js', './js/04a-grafico.js', './js/05-inicio.js', './js/05a-proximos.js', './js/06-habitos.js', './js/07-treino.js', './js/07a-animacoes.js', './js/08-sessao.js', './js/08a-treino-mais.js', './js/09-leitura.js', './js/10-biblia.js', './js/10a-ano-dados.js', './js/11-devocional.js', './js/11a-ano.js', './js/11b-ano-acoes.js', './js/11c-devo-abas.js', './js/12-escrita.js', './js/12a-saude.js', './js/12b-dieta.js', './js/12c-dieta-editar.js', './js/13-metas.js', './js/13a-semana.js', './js/14-conquistas.js', './js/15-menu.js', './js/15a-extras.js', './js/15b-tour.js', './js/16-boot.js'];
+  './js/00-config.js', './js/01-base.js', './js/02-dados.js', './js/03-jogo.js', './js/04-efeitos.js', './js/04a-grafico.js', './js/05-inicio.js', './js/05a-proximos.js', './js/06-habitos.js', './js/07-treino.js', './js/07a-animacoes.js', './js/08-sessao.js', './js/08a-treino-mais.js', './js/09-leitura.js', './js/10-biblia.js', './js/10a-ano-dados.js', './js/11-devocional.js', './js/11a-ano.js', './js/11b-ano-acoes.js', './js/11c-devo-abas.js', './js/12-escrita.js', './js/12a-saude.js', './js/12b-dieta.js', './js/12c-dieta-editar.js', './js/13-metas.js', './js/13a-semana.js', './js/14-conquistas.js', './js/15-menu.js', './js/15a-extras.js', './js/15b-tour.js', './js/15c-conta.js', './js/16-boot.js'];
 
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', (e) => {
