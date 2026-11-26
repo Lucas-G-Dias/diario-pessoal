@@ -177,3 +177,9 @@
   .seg.modelos button { font-size: .74rem; }
 }
 .dieta-inicio .tl { margin-top: 10px; }
+/* computador: próximos passos e refeições de hoje lado a lado, mesma altura */
+@media (min-width: 1024px) { .pg-inicio > .dieta-inicio, .pg-inicio > .kpis { grid-column: 1 / -1; } }
+@media (min-width: 1280px) {
+  .pg-inicio:has(> .dieta-inicio) > .prox { grid-column: span 1; align-self: stretch; }
+  .pg-inicio > .dieta-inicio { grid-column: span 1; align-self: stretch; }
+}
