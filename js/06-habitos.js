@@ -31,7 +31,8 @@ function habitResumo() {
 function habitCard(h, i) {
   const log = habitsDone(today()), due = habitDueOn(h, today()), t = h.target || 1, v = hVal(h, log), ok = v >= t;
   const s = habitStreak(h), forca = habitStrength(h), mes = habitRate([h], pastDays(periodOf('mes'))), cor = h.color || 'var(--green)';
-  const grade = lastDays(28).map((d) => `<i class="${hDone(h, habitsDone(d)) ? 'on' : habitDueOn(h, d) ? '' : 'off'} ${d === today() ? 'today' : ''}" title="${shortDate(d)}"></i>`).join('');
+  const grade = lastDays(28).map((d) => { const on = hDone(h, habitsDone(d)), pode = habitDueOn(h, d) || on;
+    return `<button class="${on ? 'on' : pode ? '' : 'off'} ${d === today() ? 'today' : ''}" data-act="habDia" data-id="${h.id}|${d}" ${pode ? '' : 'disabled'} title="${shortDate(d)}${on ? ': feito (toque para desmarcar)' : pode ? ': toque para marcar' : ': folga'}" aria-label="${esc(h.name)}, ${shortDate(d)}: ${on ? 'feito' : 'não feito'}"></button>`; }).join('');
   const btn = t > 1
     ? `<button class="hcount ${ok ? 'on' : ''}" data-act="marcarHabito" data-id="${h.id}" ${due ? '' : 'disabled'} aria-label="Somar 1 em ${esc(h.name)}: ${v} de ${t}">${ring(v / t, cor, 46, ok ? ic('check', 18) : `<b>${v}</b>`)}</button>`
     : `<button class="hcheck ${ok ? 'on' : ''}" data-act="marcarHabito" data-id="${h.id}" ${due ? '' : 'disabled'} aria-pressed="${ok}" aria-label="${ok ? 'Desmarcar' : 'Marcar'} ${esc(h.name)} hoje">${ok ? ic('check', 20) : ''}</button>`;
@@ -40,7 +41,7 @@ function habitCard(h, i) {
     <div class="grow"><strong class="serif lg">${esc(h.name)}</strong><span class="tiny muted">${diasTexto(h.days)}${t > 1 ? ` · ${t}× ao dia` : ''}${h.time ? ' · ' + h.time : ''}${due ? '' : ' · folga hoje'}</span></div>
     <div class="hnums"><span class="hstreak" title="Sequência">${ic('flame', 15)}<b>${s}</b></span><span class="tiny muted">${pctTxt(mes)} no mês</span></div>
     <button class="icon-btn" data-act="editarHabito" data-id="${h.id}" aria-label="Editar hábito ${esc(h.name)}">${ic('edit', 18)}</button></div>
-    <div class="hgrid" aria-hidden="true">${grade}</div>
+    <div class="hgrid" role="group" aria-label="Últimos 28 dias de ${esc(h.name)}. Toque num dia para marcar ou desmarcar.">${grade}</div>
     <div class="forca"><span class="tiny muted">Força do hábito</span>${progressBar(forca, 'habit')}<b class="tiny">${Math.round(forca * 100)}%</b></div></section>`;
 }
 
@@ -70,7 +71,7 @@ function formHabito(h = {}) {
     <label>Lembrete<input name="time" type="time" value="${esc(h.time || '')}"></label></div>
     <fieldset><legend>Cor</legend><div class="swatches">${HCORES.map((c, i) => `<label class="swatch round" style="--c:${c}"><input type="radio" name="color" value="${c}" ${cor === c ? 'checked' : ''} aria-label="Cor ${i + 1}"></label>`).join('')}</div></fieldset>
     ${h.id ? '<p class="tiny muted">Pausar tira o hábito do dia a dia sem perder o histórico nem baixar sua porcentagem. Apagar remove de vez.</p>' : ''}
-    <div class="form-actions">${h.id ? `<button type="button" class="btn ghost danger" data-act="apagarHabito" data-id="${h.id}">${ic('trash', 16)} Apagar</button>` : ''}${acoes}<button class="btn">Salvar</button></div></form>`;
+    <div class="form-actions">${h.id ? `<button type="button" class="btn ghost danger" data-act="apagarHabito" data-id="${h.id}">${ic('trash', 16)} Apagar</button><button type="button" class="btn ghost" data-act="habLimpar" data-id="${h.id}">Limpar histórico</button>` : ''}${acoes}<button class="btn">Salvar</button></div></form>`;
 }
 
 Object.assign(ACT, {

@@ -39,6 +39,7 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 | `js/15a-extras.js` | arrastar para reordenar (`data-sort` + `data-sid` + `.drag`, campo `ord`), restaurar backup, busca em tudo |
 | `js/15b-tour.js` | tour de boas-vindas (um cartão por área, `config/main.tourDone`) |
 | `js/15c-conta.js` | conta: erros do login em português sem revelar se o e-mail existe (`erroAuth()`), tela de senha nova ao abrir o link de redefinir (`S.recuperar`, evento `PASSWORD_RECOVERY`), "Trocar senha" em Ajustes com opção de sair dos outros aparelhos |
+| `js/15d-apagar.js` | apagar com escolha: "Apagar alguns dias" em Ajustes (período + áreas, prévia do que some, `registrosEntre()`), tocar num dia da grade do hábito marca/desmarca (`habDia`), "Limpar histórico" de um hábito |
 | `js/16-boot.js` | `render()` com transição, navegação, folha de baixo, eventos, relógio de 1 s, início (sempre o último) |
 | `css/base.css` · `telas.css` · `areas.css` · `motion.css` · `extras.css` · `mobile.css` | tokens, personalização e formulários · casca/Início/Hábitos/Metas · demais áreas · animações · celular e tablet (< 1024 px) |
 | `icons/` · `docs/marca.html` | logo (`logo.svg`, PNGs do ícone) e guia da identidade visual |
@@ -60,6 +61,7 @@ Sem `SB_URL` em `js/00-config.js`, roda em modo local. Toda a interface em portu
 ## Padrões
 - **Sempre responsivo**: toda tela precisa funcionar de 360 px (celular pequeno) a 1440 px (monitor), passando por tablet. Use `minmax(0, 1fr)` em grades, nada de largura fixa que vaze, e rode `node tests/responsivo.cjs` (com `python3 -m http.server 8765` aberto) antes de publicar: ele tem de dizer "nenhum vazamento".
 - Cartões de alturas diferentes lado a lado no computador: use `mural([[1, htmlA], [3, htmlC]], [[2, htmlB], [4, htmlD]])` (01-base.js), duas colunas independentes sem buraco; o número é a ordem no celular. Devocional e Saúde usam colunas CSS em `.dev-body`.
+- Respiro: no computador as páginas são grade com `gap: 20px` (não use margem nos cartões); formulários com `label` 16px e `.form-actions` 20px.
 - Personalização, perfil e recomeçar valem igual no celular e no computador (mesmos dados, mesmo `config/main`).
 - Caminhos: `config/main`, `config/seen`, `books/`, `quotes/`, `reading/<data>`, `habits/`, `habitlog/<data>`, `workouts/`, `routines/`,
   `exercises/`, `session/treino`, `session/leitura`, `goals/`, `devos/`, `bible/main`, `prayers/`, `journal/`, `covers/`, `config/foto`,
